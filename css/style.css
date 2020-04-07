@@ -1,0 +1,18 @@
+body {
+  background-image: url("../images/river.jpg"); 
+  background-size: cover; 
+  font-family: 'Sen';
+  padding: 2vw;
+}
+
+.header {
+    font-size: 27pt;
+    color: white;
+}
+
+.text {
+    width: 20%;
+    color: white;
+    font-size: 16pt;
+}
+

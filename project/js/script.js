@@ -208,5 +208,5 @@ function draw() {
   background(bg);
   update();
   render();
-  ellipse(hand_position_pix.x, hand_position_pix.y, 20, 20);
+  // ellipse(hand_position_pix.x, hand_position_pix.y, 20, 20);
 }

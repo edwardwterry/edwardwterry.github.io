@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
+  </head>
+  <body>
+    <a-scene shadow antialiasing>
+      <a-assets> </a-assets>
+
+      <a-entity
+        environment="preset: osiris; skyColor: #55a6ff; horizonColor: #f0cacd; shadow: true; lightPosition: 0 13 0; fog: 0.67; groundColor: #5639ac; dressingAmount: 0; grid: none; shadowSize: 2"
+      ></a-entity>
+
+      <a-entity
+        id="reflector"
+        position="1 1 0"
+        scale="0.1 0.01 0.1"
+        geometry="primitive: cylinder"
+        material="color: #FFD700; metalness:.8; roughness:0;"
+        animation="property:rotation; dur: 1000; to: 0 0 360; easing: linear; loop: true"
+      >
+      </a-entity>
+
+      <a-entity light="type:point;" position="0 1 0"></a-entity>
+      <a-entity light="type: ambient; intensity: .2"></a-entity>
+
+      <a-entity camera look-controls wasd-controls position="0 1.5 0"></a-entity>
+    </a-scene>
+  </body>
+</html>

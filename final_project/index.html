@@ -2,6 +2,7 @@
   <head>
     <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
     <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
+    <script src="js/env.js"></script>
   </head>
   <body>
     <a-scene shadow antialiasing>
@@ -20,11 +21,20 @@
         animation="property:rotation; dur: 1000; to: 0 0 360; easing: linear; loop: true"
       >
       </a-entity>
-
+      <a-plane color="#CCC" class="clickable" height="2" width="2" position="0 2 -3" rotation="0 0 -90"></a-plane>
       <a-entity light="type:point;" position="0 1 0"></a-entity>
       <a-entity light="type: ambient; intensity: .2"></a-entity>
 
-      <a-entity camera look-controls wasd-controls position="0 1.5 0"></a-entity>
+      <a-entity camera look-controls position="0 1.5 0" wasd-controls="acceleration:100" collider-check>
+        <a-entity
+          cursor="fuse: true; fuseTimeout: 500" 
+          raycaster="far: 20; interval: 1000; objects: .clickable"
+          position="0 0 -1"
+          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+          material="color: black; shader: flat"
+        >
+        </a-entity>
+      </a-entity>
     </a-scene>
   </body>
 </html>

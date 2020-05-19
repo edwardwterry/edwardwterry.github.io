@@ -1,39 +1,33 @@
-// import p5 from 'p5';
 let spacebar = false;
+let target_canvas;
+let u, v;
+let canvas;
 
 $(document).ready(function () {
-  
   // https://gist.github.com/wanbinkimoon/0771fea9b199ce5ac32edc8f6d815584
-  const sketch = p => {
-    let scene1;
-  
+  const sketch = (p) => {
+    let width = 1000;
+    let height = 200;
     p.setup = () => {
-      p.createCanvas(p.windowWidth, p.windowHeight);
-  
-      scene1 = p.createGraphics(400, 400);
-  
-      p.background(100)
+      pg = p.createGraphics(width, height);
+      pg.background(100, 50, 180);
     };
-  
-    const drawScene = () => {
-      console.log(p.createGraphics)
-    }
 
     p.draw = () => {
-      drawScene()
+      p.image(pg, 0, 0);
+      if (spacebar) {
+        // p.line(u * width, v * height, p.pmouseX, p.pmouseY);
+        // p.line(p.mouseX, p.mouseY, p.pmouseX, p.pmouseY);
+        // p.ellipse(u * width, v * height, 30, 40);
+        // console.log(u * width, v * height);
+      }
     };
-  
-    p.windowResized = () => {
-      p.resizeCanvas(p.windowWidth, p.windowHeight);
-    };
-  
-    p.mousePressed = () => {};
   };
-  
-  new p5(sketch);
 
-
+  canvas = new p5(sketch, document.getElementById('custom-canvas-0'));
 });
+
+
 
 AFRAME.registerComponent("collider-check", {
   dependencies: ["raycaster"],
@@ -45,6 +39,11 @@ AFRAME.registerComponent("collider-check", {
   },
 });
 
+
+// --------------------------
+// RAYCASTING
+
+// helps to get the properties of the intersected elements
 AFRAME.registerComponent("raycaster-listen", {
   init: function () {
     // Use events to figure out what raycaster is listening so we don't have to
@@ -68,22 +67,23 @@ AFRAME.registerComponent("raycaster-listen", {
     if (!intersection) {
       return;
     }
-    // console.log(intersection.uv);
+    u = 1.0 - intersection.uv["x"];
+    v = 1.0 - intersection.uv["y"];
   },
 });
 
+// --------------------------
+// KEYBOARD INTERACTION
+// listen for keydown and keyup events
 // https://www.w3schools.com/jsref/event_onkeydown.asp
-document.addEventListener('keydown', function (event) {
-  if (event.which == 32){ // spacebar
+document.addEventListener("keydown", function (event) {
+  if (event.which == 32) {
     spacebar = true;
-    console.log('Spacebar down');
   }
 });
 
-document.addEventListener('keyup', function (event) {
-  if (event.which == 32){ // spacebar
+document.addEventListener("keyup", function (event) {
+  if (event.which == 32) {
     spacebar = false;
-    console.log('Spacebar up');
   }
 });
-

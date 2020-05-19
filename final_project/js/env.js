@@ -1,3 +1,7 @@
+$(document).ready(function () {
+
+});
+
 AFRAME.registerComponent("collider-check", {
   dependencies: ["raycaster"],
 
@@ -31,6 +35,6 @@ AFRAME.registerComponent("raycaster-listen", {
     if (!intersection) {
       return;
     }
-    console.log(intersection.uv);
+    // console.log(intersection.uv);
   },
 });

@@ -1,33 +1,33 @@
 let spacebar = false;
 let target_canvas;
 let u, v;
-let canvas;
+let myp5;
 
 $(document).ready(function () {
   // https://gist.github.com/wanbinkimoon/0771fea9b199ce5ac32edc8f6d815584
   const sketch = (p) => {
-    let width = 1000;
-    let height = 200;
+    let width = 150;
+    let height = 75;
     p.setup = () => {
-      pg = p.createGraphics(width, height);
-      pg.background(100, 50, 180);
+      c = p.createCanvas(width, height);
+      c.background(100, 50, 180);
     };
 
     p.draw = () => {
-      p.image(pg, 0, 0);
-      if (spacebar) {
-        // p.line(u * width, v * height, p.pmouseX, p.pmouseY);
-        // p.line(p.mouseX, p.mouseY, p.pmouseX, p.pmouseY);
-        // p.ellipse(u * width, v * height, 30, 40);
-        // console.log(u * width, v * height);
-      }
+      // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
+      // c.image(pg, 0, 0);
+      var HTMLcanvas = document.getElementById("custom-canvas");
+      var HTMLcontext = HTMLcanvas.getContext("2d");
+      p.fill(255);
+      p.ellipse(10, 10, 20, 20);
+      console.log(u, v);
+      // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
+      HTMLcontext.drawImage(c.canvas, 0, 0);
     };
   };
 
-  canvas = new p5(sketch, document.getElementById('custom-canvas-0'));
+  myp5 = new p5(sketch);// , document.getElementById("custom-canvas"));
 });
-
-
 
 AFRAME.registerComponent("collider-check", {
   dependencies: ["raycaster"],
@@ -38,7 +38,6 @@ AFRAME.registerComponent("collider-check", {
     });
   },
 });
-
 
 // --------------------------
 // RAYCASTING
@@ -67,8 +66,10 @@ AFRAME.registerComponent("raycaster-listen", {
     if (!intersection) {
       return;
     }
-    u = 1.0 - intersection.uv["x"];
-    v = 1.0 - intersection.uv["y"];
+    u = intersection.uv["x"];
+    v = intersection.uv["y"];
+    // u = 1.0 - intersection.uv["x"];
+    // v = 1.0 - intersection.uv["y"];
   },
 });
 

@@ -8,8 +8,10 @@
     <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
     <script src="lib/p5.js"></script>
     <script src="js/env.js"></script>
+    <!-- <style> .a-canvas { display: none; } </style> -->
   </head>
   <body>
+    <!-- <canvas id="custom-canvas-0"></canvas> -->
     <a-scene shadow antialiasing>
       <!-- load assets -->
       <a-assets>
@@ -17,7 +19,7 @@
           id="curved-screen"
           src="assets/blender/curved_screen_test.obj"
         ></a-asset-item>
-        <canvas id="custom-canvas-0"></canvas>
+        <canvas id="custom-canvas"></canvas>
       </a-assets>
 
       <!-- default environment -->
@@ -37,25 +39,23 @@
       </a-entity>
 
       <!-- original flat plane -->
-      <!-- <a-plane
+      <a-plane
         color="#CCC"
         class="clickable"
-        height="2"
-        width="2"
-        position="0 2 -3"
-        rotation="0 0 -90"
+        position="0 1.5 -1"
+        rotation="0 0 0"
+        material="src:#custom-canvas"
         raycaster-listen
-      ></a-plane> -->
+      ></a-plane>
 
       <!-- sample curved plane -->
-      <a-entity
+      <!-- <a-entity
         obj-model="obj: #curved-screen"
         class="clickable"
         position="0 1 -3"
-        scale="3 3 1"
         material="src:#custom-canvas-0; side: double"
         raycaster-listen
-      ></a-entity>
+      ></a-entity> -->
 
       <!-- lights -->
       <a-entity light="type:point;" position="0 1 0"></a-entity>

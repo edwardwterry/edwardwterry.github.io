@@ -11,7 +11,7 @@
     <!-- <style> .a-canvas { display: none; } </style> -->
   </head>
   <body>
-    <!-- <canvas id="custom-canvas-0"></canvas> -->
+    <!-- <canvas id="custom-canvas"></canvas> -->
     <a-scene shadow antialiasing>
       <!-- load assets -->
       <a-assets>
@@ -19,6 +19,10 @@
           id="curved-screen"
           src="assets/blender/curved_screen_test.obj"
         ></a-asset-item>
+        <a-asset-item
+          id="curved-room"
+          src="assets/blender/room_uv.obj"
+      ></a-asset-item>
         <canvas id="custom-canvas"></canvas>
       </a-assets>
 
@@ -42,9 +46,11 @@
       <a-plane
         color="#CCC"
         class="clickable"
-        position="0 1.5 -1"
-        rotation="0 0 0"
-        material="src:#custom-canvas"
+        position="1 1.5 -1"
+        height="0.5"
+        width="1"
+        rotation="0 -30 0"
+        material="src: #custom-canvas; side: double"
         raycaster-listen
       ></a-plane>
 
@@ -52,8 +58,8 @@
       <!-- <a-entity
         obj-model="obj: #curved-screen"
         class="clickable"
-        position="0 1 -3"
-        material="src:#custom-canvas-0; side: double"
+        position="0 1 -1"
+        material="src:#custom-canvas; side: double"
         raycaster-listen
       ></a-entity> -->
 

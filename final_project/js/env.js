@@ -10,23 +10,27 @@ $(document).ready(function () {
     let height = 75;
     p.setup = () => {
       c = p.createCanvas(width, height);
-      c.background(100, 50, 180);
+      c.background(255, 255, 255);
+      c.strokeWeight(20);
+      p.fill(0);
     };
 
     p.draw = () => {
       // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
-      // c.image(pg, 0, 0);
+
       var HTMLcanvas = document.getElementById("custom-canvas");
       var HTMLcontext = HTMLcanvas.getContext("2d");
-      p.fill(255);
-      p.ellipse(10, 10, 20, 20);
-      console.log(u, v);
+      // if (spacebar) {
+        console.log("frame count", p.frameCount);
+        p.point(p.frameCount, 30);
+        // console.log(p.int(u * width), p.int(v * height));
+      // }
       // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
       HTMLcontext.drawImage(c.canvas, 0, 0);
     };
   };
 
-  myp5 = new p5(sketch);// , document.getElementById("custom-canvas"));
+  myp5 = new p5(sketch);
 });
 
 AFRAME.registerComponent("collider-check", {
@@ -67,9 +71,9 @@ AFRAME.registerComponent("raycaster-listen", {
       return;
     }
     u = intersection.uv["x"];
-    v = intersection.uv["y"];
+    // v = intersection.uv["y"];
     // u = 1.0 - intersection.uv["x"];
-    // v = 1.0 - intersection.uv["y"];
+    v = 1.0 - intersection.uv["y"];
   },
 });
 

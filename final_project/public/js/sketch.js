@@ -1,9 +1,13 @@
+let socket;
+
 let spacebar = false;
 let target_canvas;
 let u, v;
 let myp5;
 
 $(document).ready(function () {
+  socket = io.connect();
+
   // https://gist.github.com/wanbinkimoon/0771fea9b199ce5ac32edc8f6d815584
   const sketch = (p) => {
     let width = 150;
@@ -21,9 +25,9 @@ $(document).ready(function () {
       var HTMLcanvas = document.getElementById("custom-canvas");
       var HTMLcontext = HTMLcanvas.getContext("2d");
       // if (spacebar) {
-        console.log("frame count", p.frameCount);
-        p.point(p.frameCount, 30);
-        // console.log(p.int(u * width), p.int(v * height));
+      // console.log("frame count", p.frameCount);
+      p.point(p.frameCount, 30);
+      // console.log(p.int(u * width), p.int(v * height));
       // }
       // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
       HTMLcontext.drawImage(c.canvas, 0, 0);

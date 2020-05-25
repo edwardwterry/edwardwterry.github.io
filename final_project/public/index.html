@@ -7,6 +7,7 @@
     ></script>
     <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/osc@2.4.1/dist/osc-browser.min.js"></script>
     <script src="lib/p5.js"></script>
     <script src="js/sketch.js"></script>
     <!-- <style> .a-canvas { display: none; } </style> -->
@@ -44,7 +45,7 @@
       </a-entity>
 
       <!-- original flat plane -->
-      <a-plane
+      <!-- <a-plane
         color="#CCC"
         class="clickable"
         position="1 1.5 -1"
@@ -53,7 +54,7 @@
         rotation="0 -30 0"
         material="src: #custom-canvas; side: double"
         raycaster-listen
-      ></a-plane>
+      ></a-plane> -->
 
       <!-- sample curved plane -->
       <!-- <a-entity
@@ -63,6 +64,26 @@
         material="src:#custom-canvas; side: double"
         raycaster-listen
       ></a-entity> -->
+
+      <a-cylinder
+        open-ended="true"
+        position="0 1.5 -1"
+        theta-start="90"
+        theta-length="180"
+        material="src: #custom-canvas; side: double"
+        radius="2"
+        raycaster-listen
+      ></a-cylinder>
+
+      <a-cylinder
+        open-ended="true"
+        position="0 1.5 1"
+        theta-start="-90"
+        theta-length="180"
+        material="src: #custom-canvas; side: double"
+        radius="2"
+        raycaster-listen
+      ></a-cylinder>      
 
       <!-- lights -->
       <a-entity light="type:point;" position="0 1 0"></a-entity>

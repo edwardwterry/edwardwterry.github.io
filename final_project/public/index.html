@@ -25,8 +25,10 @@
           id="curved-room"
           src="assets/blender/room_uv.obj"
         ></a-asset-item>
-        <canvas id="custom-canvas"></canvas>
+        <canvas id="custom-canvas" crossorigin="anonymous"></canvas>
+        <canvas id="helloWorldCanvas" crossOrigin="anonymous"></canvas>
       </a-assets>
+
 
       <!-- default environment -->
       <a-entity
@@ -43,9 +45,14 @@
         animation="property:rotation; dur: 1000; to: 0 0 360; easing: linear; loop: true"
       >
       </a-entity>
-
+      <a-entity material="src: #custom-canvas"
+                geometry="primitive: plane; width: 1; height: 1"
+                position="0 1 -2" rotation="0 35 0"
+                canvas-updater
+                >
+      </a-entity>
       <!-- original flat plane -->
-      <a-plane
+      <!-- <a-plane
         color="#CCC"
         class="clickable"
         position="0 1.5 -1"
@@ -54,7 +61,8 @@
         rotation="0 0 0"
         material="src: #custom-canvas; side: double"
         raycaster-listen
-      ></a-plane>
+        draw-canvas="custom-canvas"
+      ></a-plane> -->
 
       <!-- sample curved plane -->
       <!-- <a-entity
@@ -75,7 +83,7 @@
         raycaster-listen
       ></a-cylinder> -->
 
-      <!-- <a-cylinder
+      <a-cylinder
         open-ended="true"
         position="0 1.5 1"
         theta-start="-90"
@@ -83,7 +91,8 @@
         material="src: #custom-canvas; side: double"
         radius="2"
         raycaster-listen
-      ></a-cylinder>       -->
+        canvas-updater
+      ></a-cylinder>      
 
       <!-- <a-entity screen="" position="0 1 -2"></a-entity> -->
 

@@ -12,18 +12,18 @@ var oscPort = new osc.WebSocketPort({
 
 oscPort.open();
 
-$(document).ready(function () {
+// $(document).ready(function () {
   // socket = io.connect();
 
   // https://gist.github.com/wanbinkimoon/0771fea9b199ce5ac32edc8f6d815584
   const sketch = (p) => {
-    let width = 300;
-    let height = 200;
+    let width = 3000;
+    let height = 150;
     let count = 0;
     p.setup = () => {
       c = p.createCanvas(width, height);
-      c.background(255, 255, 255);
-      c.strokeWeight(20);
+      c.background(120, 120, 120);
+      c.strokeWeight(5);
       p.fill(0);
     };
     p.draw = () => {
@@ -33,27 +33,49 @@ $(document).ready(function () {
       var HTMLcontext = HTMLcanvas.getContext("2d");
       // if (spacebar) {
       // console.log("frame count", p.frameCount);
-      c.background(30, 30, 30);
-      p.point(p.frameCount, 30);
-      console.log(p.int(u * width), p.int(v * height));
-      // console.log(u, v);
+      // c.background(30, 30, 30);
+      p.point(count*5, 30);
+      // console.log(p.int(u * width), p.int(v * height));
+      // console.log(count*10);
+      if (count<5){
+        console.log(HTMLcontext);
+
+      }
       // }
       // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
       HTMLcontext.drawImage(c.canvas, 0, 0);
+      HTMLcontext.texture
       count++;
     };
   };
 
   myp5 = new p5(sketch);
-});
+// });
 
 AFRAME.registerComponent("collider-check", {
   dependencies: ["raycaster"],
 
   init: function () {
     this.el.addEventListener("raycaster-intersection", function () {
-      console.log("Player hit something!");
+      // console.log("Player hit something!");
     });
+  },
+});
+
+AFRAME.registerComponent("screen", {
+  update: function() {
+    var material = new THREE.MeshBasicMaterial({
+      color: "green",
+      wireframe: false
+    });
+
+    var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+
+    let canvasMap = new THREE.Texture(document.getElementById("custom-canvas"));
+    material.map = canvasMap;
+    material.map.needsUpdate = true;
+    material.needsUpdate = true;
+    this.el.setObject3D('mesh', new THREE.Mesh(geometry, material));
   },
 });
 

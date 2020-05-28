@@ -24,7 +24,7 @@
         <a-asset-item
           id="curved-room"
           src="assets/blender/room_uv.obj"
-      ></a-asset-item>
+        ></a-asset-item>
         <canvas id="custom-canvas"></canvas>
       </a-assets>
 
@@ -48,10 +48,10 @@
       <!-- <a-plane
         color="#CCC"
         class="clickable"
-        position="1 1.5 -1"
+        position="0 1.5 -1"
         height="0.5"
         width="1"
-        rotation="0 -30 0"
+        rotation="0 0 0"
         material="src: #custom-canvas; side: double"
         raycaster-listen
       ></a-plane> -->
@@ -65,7 +65,7 @@
         raycaster-listen
       ></a-entity> -->
 
-      <a-cylinder
+      <!-- <a-cylinder
         open-ended="true"
         position="0 1.5 -1"
         theta-start="90"
@@ -73,9 +73,9 @@
         material="src: #custom-canvas; side: double"
         radius="2"
         raycaster-listen
-      ></a-cylinder>
+      ></a-cylinder> -->
 
-      <a-cylinder
+      <!-- <a-cylinder
         open-ended="true"
         position="0 1.5 1"
         theta-start="-90"
@@ -83,7 +83,9 @@
         material="src: #custom-canvas; side: double"
         radius="2"
         raycaster-listen
-      ></a-cylinder>      
+      ></a-cylinder>       -->
+
+      <a-entity screen="" position="0 1 -2"></a-entity>
 
       <!-- lights -->
       <a-entity light="type:point;" position="0 1 0"></a-entity>

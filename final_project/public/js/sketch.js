@@ -3,7 +3,7 @@ let socket;
 let spacebar = false;
 let target_canvas;
 let u, v;
-let myp5;
+let myp5, myp52;
 
 var oscPort = new osc.WebSocketPort({
   url: "ws://localhost:3000", // URL to your Web Socket server. // TODO change from localhost?
@@ -14,16 +14,30 @@ oscPort.open();
 
 // $(document).ready(function () {
   // socket = io.connect();
-
+let tick_count = 0;
+setInterval(function(){
+  var ctx = document.getElementById('custom-canvas').getContext('2d');
+  ctx.beginPath();
+  ctx.rect(20, 20, 150, 100);
+  ctx.fillStyle = "red";
+  ctx.fill();
+  // ctx.fill(tick_count * 20, tick_count * 20, tick_count * 20);
+  tick_count++;
+  console.log("in set interval");
+}, 1000);
   // https://gist.github.com/wanbinkimoon/0771fea9b199ce5ac32edc8f6d815584
   const sketch = (p) => {
     let width = 3000;
     let height = 150;
     let count = 0;
     p.setup = () => {
+      c2 = p.createCanvas(width, height);
       c = p.createCanvas(width, height);
-      c.background(120, 120, 120);
+      // c.parent('custom-canvas');
+      c.background(40, 40, 40);
+      c2.background(200, 200, 200);
       c.strokeWeight(5);
+      c2.strokeWeight(5);
       p.fill(0);
     };
     p.draw = () => {
@@ -33,8 +47,10 @@ oscPort.open();
       var HTMLcontext = HTMLcanvas.getContext("2d");
       // if (spacebar) {
       // console.log("frame count", p.frameCount);
-      // c.background(30, 30, 30);
-      p.point(count*5, 30);
+      // c.background(count*50, count*50, count*50);
+      // c2.background(0,0,0);
+      c.point(count*5, 30);
+      c2.point(count*5, 30);
       // console.log(p.int(u * width), p.int(v * height));
       // console.log(count*10);
       if (count<5){
@@ -44,12 +60,17 @@ oscPort.open();
       // }
       // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
       HTMLcontext.drawImage(c.canvas, 0, 0);
-      HTMLcontext.texture
+      if (count>100){
+        HTMLcontext.drawImage(c2.canvas, 0, 0);
+      }
+      // HTMLcontext.texture
       count++;
+      console.log(count);
     };
   };
 
-  myp5 = new p5(sketch);
+  // myp5 = new p5(sketch);
+
 // });
 
 AFRAME.registerComponent("collider-check", {
@@ -65,7 +86,7 @@ AFRAME.registerComponent("collider-check", {
 AFRAME.registerComponent("screen", {
   update: function() {
     var material = new THREE.MeshBasicMaterial({
-      color: "green",
+      // color: "green",
       wireframe: false
     });
 

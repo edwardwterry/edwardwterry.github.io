@@ -45,9 +45,10 @@
         animation="property:rotation; dur: 1000; to: 0 0 360; easing: linear; loop: true"
       >
       </a-entity>
-      <a-entity material="src: #custom-canvas"
-                geometry="primitive: plane; width: 1; height: 1"
-                position="0 1 -2" rotation="0 35 0"
+      <a-entity material="src: #custom-canvas; side: double"
+                geometry="primitive: cylinder; width: 1; height: 1; open-ended: true;
+                thetaStart: 90; thetaLength: 180"
+                position="0 1 -2" rotation="0 0 0"
                 canvas-updater
                 >
       </a-entity>

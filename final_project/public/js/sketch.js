@@ -70,25 +70,6 @@ const sketch = (p) => {
 
 myp5 = new p5(sketch)
 
-
-// AFRAME.registerComponent("draw-canvas", {
-//   schema: { default: "" },
-
-//   init: function () {
-//     this.canvas = document.getElementById(this.data);
-//     this.ctx = this.canvas.getContext("2d");
-//     console.log("Init!");
-//     // // Draw on canvas...
-//   },
-//   tick: () => {
-//     this.ctx.beginPath();
-//     this.ctx.rect(20, 20, 150, 100);
-//     this.ctx.fillStyle = "rgba(" + test_incr + ",100,100,100)";
-//     this.ctx.fill();
-//     test_incr++;
-//   }
-// });
-
 AFRAME.registerComponent('canvas-updater', {
   dependencies: ['geometry', 'material'],
 
@@ -101,8 +82,6 @@ AFRAME.registerComponent('canvas-updater', {
     material.map.needsUpdate = true;
   }
 });
-
-// });
 
 AFRAME.registerComponent("collider-check", {
   dependencies: ["raycaster"],

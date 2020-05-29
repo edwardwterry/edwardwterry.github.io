@@ -27,8 +27,8 @@ let test_incr = 0;
 // }, 1000);
 // https://gist.github.com/wanbinkimoon/0771fea9b199ce5ac32edc8f6d815584
 const sketch = (p) => {
-  let width = 3000;
-  let height = 150;
+  let width = 256;
+  let height = 128;
   let count = 0;
   p.setup = () => {
     // c2 = p.createCanvas(width, height);
@@ -45,26 +45,12 @@ const sketch = (p) => {
 
     var HTMLcanvas = document.getElementById("custom-canvas");
     var HTMLcontext = HTMLcanvas.getContext("2d");
-    // if (spacebar) {
-    // console.log("frame count", p.frameCount);
-    // c.background(count*50, count*50, count*50);
-    // c2.background(0,0,0);
-    c.point(count * 5, 30);
-    // c2.point(count * 5, 30);
+    if (spacebar) {
     // console.log(p.int(u * width), p.int(v * height));
-    // console.log(count*10);
-    // if (count < 5) {
-    //   console.log(HTMLcontext);
-    // }
-    // }
+      p.ellipse(p.int(u * width), p.int(v * height), 20, 20);
+    }
     // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
     HTMLcontext.drawImage(c.canvas, 0, 0);
-    // if (count > 100) {
-    //   HTMLcontext.drawImage(c2.canvas, 0, 0);
-    // }
-    // HTMLcontext.texture
-    count++;
-    console.log(count);
   };
 };
 
@@ -88,7 +74,7 @@ AFRAME.registerComponent("collider-check", {
 
   init: function () {
     this.el.addEventListener("raycaster-intersection", function () {
-      // console.log("Player hit something!");
+      console.log("Player hit something!");
     });
   },
 });
@@ -114,7 +100,7 @@ AFRAME.registerComponent("screen", {
 // RAYCASTING
 
 // helps to get the properties of the intersected elements
-oscPort.on("ready", function () {
+// oscPort.on("ready", function () {
   AFRAME.registerComponent("raycaster-listen", {
     init: function () {
       // Use events to figure out what raycaster is listening so we don't have to
@@ -138,9 +124,10 @@ oscPort.on("ready", function () {
       if (!intersection) {
         return;
       }
-      u = intersection.uv["x"];
+      // u = intersection.uv["x"];
       // v = intersection.uv["y"];
-      // u = 1.0 - intersection.uv["x"];
+      // console.log('u v', u, v);
+      u = 1.0 - intersection.uv["x"];
       v = 1.0 - intersection.uv["y"];
       oscPort.send({
         address: "/wall_ray",
@@ -161,7 +148,7 @@ oscPort.on("ready", function () {
       });
     },
   });
-});
+// });
 
 // --------------------------
 // KEYBOARD INTERACTION

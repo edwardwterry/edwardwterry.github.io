@@ -27,27 +27,21 @@ let test_incr = 0;
 // }, 1000);
 // https://gist.github.com/wanbinkimoon/0771fea9b199ce5ac32edc8f6d815584
 const sketch = (p) => {
-  let width = 256;
-  let height = 128;
-  let count = 0;
+  let width = 150;
+  let height = 75;
   p.setup = () => {
-    // c2 = p.createCanvas(width, height);
     c = p.createCanvas(width, height);
-    // c.parent('custom-canvas');
     c.background(200, 200, 200);
-    // c2.background(200, 200, 200);
     c.strokeWeight(5);
-    // c2.strokeWeight(5);
     p.fill(0);
   };
   p.draw = () => {
     // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
-
     var HTMLcanvas = document.getElementById("custom-canvas");
     var HTMLcontext = HTMLcanvas.getContext("2d");
     if (spacebar) {
-    // console.log(p.int(u * width), p.int(v * height));
-      p.ellipse(p.int(u * width), p.int(v * height), 20, 20);
+      console.log(p.int(u * width), p.int(v * height));
+      p.ellipse(p.int(u * width), p.int(v * height), 1, 1);
     }
     // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
     HTMLcontext.drawImage(c.canvas, 0, 0);
@@ -124,10 +118,10 @@ AFRAME.registerComponent("screen", {
       if (!intersection) {
         return;
       }
-      // u = intersection.uv["x"];
+      u = intersection.uv ["x"];
       // v = intersection.uv["y"];
       // console.log('u v', u, v);
-      u = 1.0 - intersection.uv["x"];
+      // u = 1.0 - intersection.uv["x"];
       v = 1.0 - intersection.uv["y"];
       oscPort.send({
         address: "/wall_ray",

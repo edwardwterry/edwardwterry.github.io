@@ -5,6 +5,8 @@ let target_canvas;
 let u, v;
 let myp5;
 
+let bubbles;
+
 var oscPort = new osc.WebSocketPort({
   url: "ws://localhost:3000", // URL to your Web Socket server. // TODO change from localhost?
   metadata: true,
@@ -17,12 +19,12 @@ $(document).ready(function () {
     let width = 150;
     let height = 75;
 
-    let rows = 15;
-    let cols = 30;
+    let rows = 30;
+    let cols = 60;
     let grid_cell_size = 5; // pixels
     let canvas;
     let grid;
-    let raise_amount = 5;
+    let raise_amount = 20;
     p.setup = () => {
       canvas = p.createVector(cols * grid_cell_size, rows * grid_cell_size);
       c = p.createCanvas(canvas.x, canvas.y);
@@ -59,7 +61,7 @@ $(document).ready(function () {
       p.noStroke();
       for (let c = 0; c < cols; ++c) {
         for (let r = 0; r < rows; ++r) {
-          p.fill(grid[c][r]);
+          p.fill(30, 30, grid[c][r]);
           p.square(c * grid_cell_size, r * grid_cell_size, grid_cell_size);
         }
       }
@@ -73,7 +75,9 @@ $(document).ready(function () {
             grid[c][r] +=
               raise_amount *
               p.exp(
-                -10*(p.pow(c - point_ij.x, 2) / 10 + p.pow(r - point_ij.y, 2) / 10     )
+                -10 *
+                  (p.pow(c - point_ij.x, 2) / 20 +
+                    p.pow(r - point_ij.y, 2) / 20)
               );
           }
         }
@@ -83,7 +87,7 @@ $(document).ready(function () {
     function decayGrid() {
       for (let c = 0; c < cols; ++c) {
         for (let r = 0; r < rows; ++r) {
-          grid[c][r] -= p.exp(grid[c][r]*1e-5)* 0.1 ;
+          grid[c][r] -= p.exp(grid[c][r] * 1e-4) * 0.1;
           grid[c][r] = p.max(0, grid[c][r]);
         }
       }
@@ -227,4 +231,58 @@ document.addEventListener("keyup", function (event) {
   if (event.which == 32) {
     spacebar = false;
   }
+});
+
+AFRAME.registerComponent("bubble", {
+  schema: {
+    // color: { type: "color", default: "#AAA" },
+  },
+
+  /**
+   * Initial creation and setting of the mesh.
+   */
+  init: function () {
+    let el = this.el;
+    // this.renderer = el.renderer;
+    this.camera = new THREE.CubeCamera(0.1, 5000, 512);
+
+    let fShader = THREE.FresnelShader;
+
+    let fresnelUniforms = {
+      mRefractionRatio: { type: "f", value: 1.02 },
+      mFresnelBias: { type: "f", value: 0.1 },
+      mFresnelPower: { type: "f", value: 2.0 },
+      mFresnelScale: { type: "f", value: 1.0 },
+      tCube: { type: "t", value: this.camera.renderTarget }, //  textureCube }
+    };
+
+    // Create geometry.
+    this.geometry = new THREE.SphereGeometry(1, 32, 32);
+
+    // Create material.
+    this.material = new THREE.ShaderMaterial({
+      uniforms: fresnelUniforms,
+      vertexShader: fShader.vertexShader,
+      fragmentShader: fShader.fragmentShader,
+    });
+    const material = new THREE.MeshPhongMaterial({
+      opacity: 0.7,
+      transparent: true,
+    });
+
+    // Create mesh.
+    this.mesh = new THREE.Mesh(this.geometry, material);
+
+    // Set mesh on entity.
+    el.setObject3D("mesh", this.mesh);
+  },
+  // tick: function () {
+  //   this.camera.position = this.mesh.position;
+  //   // console.log(this.camera.position);
+
+  //   this.mesh.visible = false;
+  //   // console.log(this.el);
+  //   // this.camera.update();//this.el.sceneEl.renderer, this.el.sceneEl);
+  //   this.mesh.visible = true;
+  // },
 });

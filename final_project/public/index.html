@@ -8,6 +8,9 @@
     <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/osc@2.4.1/dist/osc-browser.min.js"></script>
+    
+    <script src="js/shaders/FresnelShader.js"></script>
+
     <script src="lib/p5.js"></script>
     <script src="js/sketch.js"></script>
     <!-- <style> .a-canvas { display: none; } </style> -->
@@ -23,11 +26,12 @@
 
       <!-- default environment -->
       <a-entity
-        environment="preset: osiris; skyColor: #55a6ff; horizonColor: #f0cacd; shadow: true; lightPosition: 0 13 0; fog: 0.67; groundColor: #5639ac; dressingAmount: 0; grid: none; shadowSize: 2"
+        environment="preset: goaland; skyColor: #55a6ff; horizonColor: #f0cacd; shadow: true; lightPosition: 0 13 0; fog: 0.67; groundColor: #5639ac; dressingAmount: 0; grid: none; shadowSize: 2"
       ></a-entity>
 
+      <a-entity bubble         position="0 1 -4"></a-entity>
       <!-- sample spinning brass disc -->
-      <a-entity
+      <!-- <a-entity
         id="reflector"
         position="1 1 0"
         scale="0.1 0.01 0.1"
@@ -35,9 +39,9 @@
         material="color: #FFD700; metalness:.8; roughness:0;"
         animation="property:rotation; dur: 1000; to: 0 0 360; easing: linear; loop: true"
       >
-      </a-entity>
-      <a-entity material="src: #custom-canvas; side: double"
-                geometry="primitive: cylinder; width: 1; height: 4; open-ended: true; radius: 3;
+      </a-entity> -->
+      <a-entity material="src: #custom-canvas; side: double; metalness:0.7"
+                geometry="primitive: cylinder; width: 1; height: 4; open-ended: true; radius: 4;
                 thetaStart: 90; thetaLength: 180"
                 position="0 1 -2" rotation="0 0 0"
                 canvas-updater
@@ -46,8 +50,8 @@
       </a-entity>    
 
       <!-- lights -->
-      <a-entity light="type:point;" position="0 1 0"></a-entity>
-      <a-entity light="type: ambient; intensity: .2"></a-entity>
+      <a-entity light="type:point;" position="0 2 0"></a-entity>
+      <a-entity light="type: ambient; intensity: .3"></a-entity>
 
       <!-- camera and reticle -->
       <a-entity

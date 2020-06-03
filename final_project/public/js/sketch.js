@@ -248,7 +248,7 @@ AFRAME.registerComponent("bubble", {
     // color: { type: "color", default: "#AAA" },
   },
 
-  multiple: true,
+  // multiple: true,
 
   /**
    * Initial creation and setting of the mesh.
@@ -288,13 +288,20 @@ AFRAME.registerComponent("bubble", {
     // Set mesh on entity.
     el.setObject3D("mesh", this.mesh);
   },
-  // tick: function () {
-  //   this.camera.position = this.mesh.position;
-  //   // console.log(this.camera.position);
+  tick: function () {
+    // let obj = this.el.object3D;
+    // let pos = this.position;
+    let pos = this.el.getAttribute('position');
+    this.el.setAttribute('position', { x: pos.x, y: pos.y+0.01, z: pos.z });
 
-  //   this.mesh.visible = false;
-  //   // console.log(this.el);
-  //   // this.camera.update();//this.el.sceneEl.renderer, this.el.sceneEl);
-  //   this.mesh.visible = true;
-  // },
+    // this.el.setObject3D('position', { x: -0.5, y: 0, z: 0 });
+    // obj.position.set += 0.01;
+    // this.camera.position = this.mesh.position;
+    // // console.log(this.camera.position);
+
+    // this.mesh.visible = false;
+    // // console.log(this.el);
+    // // this.camera.update();//this.el.sceneEl.renderer, this.el.sceneEl);
+    // this.mesh.visible = true;
+  },
 });

@@ -119,6 +119,16 @@ $(document).ready(function () {
   };
 
   myp5 = new p5(sketch);
+
+  let sceneElement = document.querySelector("a-scene");
+
+  for (let i = 0; i < 10; i++){
+    let entity = document.createElement("a-entity");
+    entity.setAttribute("id", i);
+    entity.setAttribute("bubble", "");
+    entity.setAttribute("position", { x: i * 0.2, y: 1, z: -3 });
+    sceneElement.appendChild(entity);
+  }
 });
 
 AFRAME.registerComponent("canvas-updater", {
@@ -237,6 +247,8 @@ AFRAME.registerComponent("bubble", {
   schema: {
     // color: { type: "color", default: "#AAA" },
   },
+
+  multiple: true,
 
   /**
    * Initial creation and setting of the mesh.

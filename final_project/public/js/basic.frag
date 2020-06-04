@@ -1,74 +1,55 @@
-// this is a modification of a shader by adam ferriss
-// https://github.com/aferriss/p5jsShaderExamples/tree/gh-pages/5_shapes/5-3_polygon
-
 precision mediump float;
-
-// these are known as preprocessor directive
-// essentially we are just declaring some variables that wont change
-// you can think of them just like const variables
-
-#define PI 3.14159265359
-#define TWO_PI 6.28318530718
 
 // we need the sketch resolution to perform some calculations
 uniform vec2 resolution;
 uniform float time;
-uniform float mouse;
+uniform vec2 mouse;
 
 // this is a function that turns an rgb value that goes from 0 - 255 into 0.0 - 1.0
 vec3 rgb(float r, float g, float b){
   return vec3(r / 255.0, g / 255.0, b / 255.0);
 }
 
-vec4 poly(float x, float y, float size, float sides, float rotation, vec3 col){
-  // get our coordinates
-  vec2 coord = gl_FragCoord.xy;
+// adapted from jono brandels simple circle https://www.shadertoy.com/view/XsjGDt
+vec4 circle(float x, float y, float rad, vec3 col){
+    vec2 coord = gl_FragCoord.xy;
+    // flip the y coords for p5
+    coord.y = (resolution.y*2.0 - coord.y*0.5)*2.0;
 
-  // move the coordinates to where we want to draw the shape
-  vec2 pos = vec2(x,y) - coord;
+    // store the x and y in a vec2 
+    vec2 p = vec2(x, y);
 
-  // calculate the angle of a pixel relative to our position
-  float angle = atan( pos.x, pos.y) + PI + rotation;
+    // calculate the circle
+    // first you get the difference of the circles location and the screen coordinates
+    // compute the length of that result and subtract the radius
+    // this creates a black and white mask that we can use to multiply against our colors
+    float c = length( p - coord) - rad;
 
-  // calculate the size of our shape
-  float radius = TWO_PI / sides;
-
-  // this is the function that controls our shapes appearance
-  // i pulled it from the book of shaders shapes page https://thebookofshaders.com/07/
-  // essentially what we are doing here is computing a circle with length(pos) and manipulating it's shape with the cos() function
-  // this technique is really powerful and can be used to create all sorts of different shapes
-  // for instance, try changing cos() to sin()
-  float d = cos(floor(0.5 + angle / radius) * radius - angle) * length(pos);
-
-  // restrict our shape to black and white and set it's size
-  // we use the smoothstep function to get a nice soft edge 
-  d = 1.0 - smoothstep(size*0.5, size*0.5+1.0, d);
-
-  // return the color with the shape as the alpha channel
-  return vec4(col, d);
+    // restrict the results to be between 0.0 and 1.0
+    c = clamp(c, 0.0,1.0);
+  
+    // send out the color, with the circle as the alpha channel  
+    return vec4(rgb(col.r, col.g, col.b), 1.0 - c);  
 }
 
 
 void main() {
 
-  vec2 center = resolution * 2.0; // draw the shape at the center of the screen
-  float size = resolution.y * 0.5; // make the shape a quarter of the screen height
-  float sides = mod(floor(mouse), 7.0) + 3.0; // slowly increase the sides, when it reaches 10 sides, go back down to 3
-  float rotation = time; // rotation is in radians, but for time it doesnt really matter
+  float x = mouse.x;
+  float y = mouse.y;
 
-  // lets make our shape in the center of the screen. We have to subtract half of it's width and height just like in p5
-  float x = center.x ;
-  float y = center.y ;
+  // a color for the rect 
+  vec3 grn = vec3(255.0, 240.0, 200.0);
 
-  // a color for the shape 
-  vec3 grn = rgb(200.0, 240.0, 200.0);
+  // a color for the bg
+  vec3 magenta = rgb(20.0,150.0,20.0);
 
-  // call our shape function with poly(x, y, sz, sides, rotation, color);
-  vec4 poly = poly(center.x , center.y, size, sides, rotation, grn);
+  // call our circle function
+  vec4 circ = circle(x, y, 128.0, grn);
+  // out put the final image
 
-  // mix the polygon with the opposite of the green color according to the shapes alpha
-  poly.rgb = mix(1.0 - grn, poly.rgb, poly.a);
+  // mix the circle with the background color using the circles alpha
+  circ.rgb = mix(magenta, circ.rgb, circ.a);
 
-  // render to screen
-  gl_FragColor = vec4(poly.rgb, 1.0);
+  gl_FragColor = vec4( circ.rgb ,1.0);
 }

@@ -30,7 +30,7 @@ $(document).ready(function () {
 
     p.preload = () => {
       theShader = p.loadShader('js/basic.vert', 'js/basic.frag');
-      console.log(theShader);
+      // console.log(theShader);
     }
     p.setup = () => {
       canvas = p.createVector(cols * grid_cell_size, rows * grid_cell_size);
@@ -122,9 +122,9 @@ $(document).ready(function () {
       // renderGrid();
       p.shader(theShader);
       theShader.setUniform('resolution', [canvas.x/2.0, canvas.y/2.0]);
-      theShader.setUniform('mouse', p.map(p.mouseX, 0, p.width, 0, 7));
+      theShader.setUniform('mouse', [p.map(u, 0, 1, 0, canvas.x*2.0), p.map(v, 0, 1, 0, canvas.y*2.0)]);
       theShader.setUniform('time', p.frameCount * 0.01);
-      c.rect(0,0,canvas.x, canvas.y);
+      c.rect(0,0,canvas.x/2.0, canvas.y/2.0);
       // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
       // HTMLcontext.scale(2,2);
       HTMLcontext.drawImage(c.canvas, 0, 0);

@@ -19,8 +19,8 @@ $(document).ready(function () {
     let width = 150;
     let height = 75;
 
-    let rows = 32;
-    let cols = 128;
+    let rows = 64;
+    let cols = 256;
     let grid_cell_size = 4; // pixels
     let canvas;
     let grid;
@@ -121,10 +121,10 @@ $(document).ready(function () {
       // noiseGrid();
       // renderGrid();
       p.shader(theShader);
-      theShader.setUniform('resolution', [canvas.x/2.0, canvas.y/2.0]);
-      theShader.setUniform('mouse', [p.map(u, 0, 1, 0, canvas.x*2.0), p.map(v, 0, 1, 0, canvas.y*2.0)]);
+      theShader.setUniform('resolution', [canvas.x, canvas.y]);
+      theShader.setUniform('mouse', [p.map(u, 0, 1, 0, canvas.x), p.map(v, 0, 1, 0, canvas.y)]);
       theShader.setUniform('time', p.frameCount * 0.01);
-      c.rect(0,0,canvas.x/2.0, canvas.y/2.0);
+      c.rect(0,0,canvas.x, canvas.y);
       // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
       // HTMLcontext.scale(2,2);
       HTMLcontext.drawImage(c.canvas, 0, 0);

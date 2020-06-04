@@ -14,7 +14,8 @@ vec3 rgb(float r, float g, float b){
 vec4 circle(float x, float y, float rad, vec3 col){
     vec2 coord = gl_FragCoord.xy;
     // flip the y coords for p5
-    coord.y = (resolution.y*2.0 - coord.y*0.5)*2.0;
+    // coord.y = (resolution.y*2.0 - coord.y*0.5)*2.0;
+    coord.y = (resolution.y - coord.y);
 
     // store the x and y in a vec2 
     vec2 p = vec2(x, y);

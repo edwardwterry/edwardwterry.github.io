@@ -4,6 +4,7 @@ precision mediump float;
 uniform vec2 resolution;
 uniform float time;
 uniform vec2 mouse;
+uniform bool draw;
 
 // this is a function that turns an rgb value that goes from 0 - 255 into 0.0 - 1.0
 vec3 rgb(float r, float g, float b){
@@ -35,22 +36,27 @@ vec4 circle(float x, float y, float rad, vec3 col){
 
 
 void main() {
-
-  float x = mouse.x;
-  float y = mouse.y;
-
-  // a color for the rect 
-  vec3 grn = vec3(255.0, 240.0, 200.0);
-
-  // a color for the bg
   vec3 magenta = rgb(20.0,150.0,20.0);
 
-  // call our circle function
-  vec4 circ = circle(x, y, 128.0, grn);
-  // out put the final image
+  if (draw){
+    float x = mouse.x;
+    float y = mouse.y;
 
-  // mix the circle with the background color using the circles alpha
-  circ.rgb = mix(magenta, circ.rgb, circ.a);
+    // a color for the rect 
+    vec3 grn = vec3(255.0, 240.0, 200.0);
 
-  gl_FragColor = vec4( circ.rgb ,1.0);
+    // a color for the bg
+
+    // call our circle function
+    vec4 circ = circle(x, y, 128.0, grn);
+    // out put the final image
+
+    // mix the circle with the background color using the circles alpha
+    circ.rgb = mix(magenta, circ.rgb, circ.a);
+
+    gl_FragColor = vec4( circ.rgb ,1.0);
+  } else {
+    gl_FragColor = vec4( magenta ,1.0);
+  }
+
 }

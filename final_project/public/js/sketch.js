@@ -124,6 +124,7 @@ $(document).ready(function () {
       theShader.setUniform('resolution', [canvas.x, canvas.y]);
       theShader.setUniform('mouse', [p.map(u, 0, 1, 0, canvas.x), p.map(v, 0, 1, 0, canvas.y)]);
       theShader.setUniform('time', p.frameCount * 0.01);
+      theShader.setUniform('draw', spacebar);
       c.rect(0,0,canvas.x, canvas.y);
       // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
       // HTMLcontext.scale(2,2);
@@ -254,7 +255,7 @@ AFRAME.registerComponent("raycaster-listen", {
 // listen for keydown and keyup events
 // https://www.w3schools.com/jsref/event_onkeydown.asp
 document.addEventListener("keydown", function (event) {
-  if (event.which == 32) {
+  if (event.which == 32 && spacebar == false) {
     spacebar = true;
   }
 });

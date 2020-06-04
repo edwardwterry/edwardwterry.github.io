@@ -20,7 +20,7 @@
     <a-scene shadow antialiasing>
       <!-- load assets -->
       <a-assets>
-        <canvas id="custom-canvas" crossorigin="anonymous"></canvas>
+        <canvas id="custom-canvas" width='1024' height='256' crossorigin="anonymous"></canvas>
       </a-assets>
 
 
@@ -40,19 +40,32 @@
         animation="property:rotation; dur: 1000; to: 0 0 360; easing: linear; loop: true"
       >
       </a-entity> -->
-      <a-entity id="room0"
+      <!-- <a-entity id="room0"
                 material="src: #custom-canvas; side: double; metalness:0.7"
                 geometry="primitive: cylinder; width: 1; height: 4; open-ended: true; radius: 4;
                 thetaStart: 90; thetaLength: 180"
                 position="0 1 -2" rotation="0 0 0"
+                scale="1 1 1"
                 canvas-updater
                 raycaster-listen
                 >
-      </a-entity>    
+      </a-entity>     -->
+
+      <a-entity id="room0"
+                material="src: #custom-canvas; side: double; metalness:0.7"
+                geometry="primitive: plane; width: 4; height: 1;"       
+                position="0 1.5 -2" rotation="0 0 0"
+                scale="1 1 1"
+                canvas-updater
+                raycaster-listen
+                >
+      </a-entity>          
 
       <!-- lights -->
       <a-entity light="type:point;" position="0 2 0"></a-entity>
-      <a-entity light="type: ambient; intensity: .3"></a-entity>
+      <a-entity light="type:point;" position="-3 2 0"></a-entity>
+      <a-entity light="type:point;" position="3 2 0"></a-entity>
+      <a-entity light="type: ambient; intensity: .2"></a-entity>
 
       <!-- camera and reticle -->
       <a-entity
@@ -65,8 +78,8 @@
         <a-entity
           cursor="fuse: true; fuseTimeout: 500"
           raycaster="far: 20; interval: 1000; objects: .clickable"
-          position="0 0 -1"
-          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+          position="0 0 -0.5"
+          geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"
           material="color: black; shader: flat"
         >
         </a-entity>

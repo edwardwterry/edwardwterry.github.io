@@ -19,15 +19,22 @@ $(document).ready(function () {
     let width = 150;
     let height = 75;
 
-    let rows = 30;
-    let cols = 60;
-    let grid_cell_size = 5; // pixels
+    let rows = 32;
+    let cols = 128;
+    let grid_cell_size = 4; // pixels
     let canvas;
     let grid;
     let raise_amount = 20;
+
+    let theShader; 
+
+    p.preload = () => {
+      theShader = p.loadShader('js/basic.vert', 'js/basic.frag');
+      console.log(theShader);
+    }
     p.setup = () => {
       canvas = p.createVector(cols * grid_cell_size, rows * grid_cell_size);
-      c = p.createCanvas(canvas.x, canvas.y);
+      c = p.createCanvas(canvas.x, canvas.y, p.WEBGL);
       grid = create2DArray();
       // console.log(grid);
 
@@ -61,7 +68,8 @@ $(document).ready(function () {
       p.noStroke();
       for (let c = 0; c < cols; ++c) {
         for (let r = 0; r < rows; ++r) {
-          p.fill(30, 30, grid[c][r]);
+          // p.fill(0, 255, grid[c][r]);
+          p.fill(grid[c][r], grid[c][r], grid[c][r]);
           p.square(c * grid_cell_size, r * grid_cell_size, grid_cell_size);
         }
       }
@@ -104,16 +112,21 @@ $(document).ready(function () {
       var HTMLcanvas = document.getElementById("custom-canvas");
       var HTMLcontext = HTMLcanvas.getContext("2d");
       // if (spacebar) {
-      //   // console.log(p.int(u * width), p.int(v * height));
+        // console.log(p.int(u * width), p.int(v * height));
       //   p.ellipse(p.int(u * width), p.int(v * height), 0.1, 0.1);
       // }
 
-      raiseGrid();
-      decayGrid();
-      noiseGrid();
-      renderGrid();
-
+      // raiseGrid();
+      // decayGrid();
+      // noiseGrid();
+      // renderGrid();
+      p.shader(theShader);
+      theShader.setUniform('resolution', [canvas.x/2.0, canvas.y/2.0]);
+      theShader.setUniform('mouse', p.map(p.mouseX, 0, p.width, 0, 7));
+      theShader.setUniform('time', p.frameCount * 0.01);
+      c.rect(0,0,canvas.x, canvas.y);
       // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
+      // HTMLcontext.scale(2,2);
       HTMLcontext.drawImage(c.canvas, 0, 0);
     };
   };

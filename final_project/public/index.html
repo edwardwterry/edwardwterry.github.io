@@ -29,7 +29,7 @@
         environment="preset: goaland; skyColor: #55a6ff; horizonColor: #f0cacd; shadow: true; lightPosition: 0 13 0; fog: 0.67; groundColor: #5639ac; dressingAmount: 0; grid: none; shadowSize: 2"
       ></a-entity>
 
-      <a-entity bubble position="0 1 -4"></a-entity>
+      <!-- <a-entity bubble position="0 1 -4"></a-entity> -->
       <!-- sample spinning brass disc -->
       <!-- <a-entity
         id="reflector"
@@ -40,7 +40,8 @@
         animation="property:rotation; dur: 1000; to: 0 0 360; easing: linear; loop: true"
       >
       </a-entity> -->
-      <a-entity material="src: #custom-canvas; side: double; metalness:0.7"
+      <a-entity id="room0"
+                material="src: #custom-canvas; side: double; metalness:0.7"
                 geometry="primitive: cylinder; width: 1; height: 4; open-ended: true; radius: 4;
                 thetaStart: 90; thetaLength: 180"
                 position="0 1 -2" rotation="0 0 0"

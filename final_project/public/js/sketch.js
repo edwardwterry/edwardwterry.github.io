@@ -122,10 +122,12 @@ $(document).ready(function () {
 
   let sceneElement = document.querySelector("a-scene");
 
-  for (let i = 0; i < 10; i++){
+  for (let i = 0; i < 10; i++) {
     let entity = document.createElement("a-entity");
-    entity.setAttribute("id", i);
     entity.setAttribute("bubble", "");
+    entity.setAttribute("id", i);
+    entity.setAttribute("raycaster-listen", "");
+    entity.setAttribute("scale", { x: 0.1, y: 0.1, z: 0.1 });
     entity.setAttribute("position", { x: i * 0.2, y: 1, z: -3 });
     sceneElement.appendChild(entity);
   }
@@ -201,17 +203,24 @@ AFRAME.registerComponent("raycaster-listen", {
     if (!intersection) {
       return;
     }
+    id = intersection.object;
+    // console.log(id.el);
     u = intersection.uv["x"];
     // v = intersection.uv["y"];
-    // console.log('u v', u, v);
     // u = 1.0 - intersection.uv["x"];
     v = 1.0 - intersection.uv["y"];
+
+    if (spacebar) {
+      if (id.el.attributes[0].name == "bubble") {
+        $("[id=" + id.el.id + "]").remove();
+      }
+    }
     oscPort.send({
       address: "/wall_ray",
       args: [
         {
-          type: "i",
-          value: intersection.object.id,
+          type: "s",
+          value: id.el.id,
         },
         {
           type: "f",
@@ -291,8 +300,8 @@ AFRAME.registerComponent("bubble", {
   tick: function () {
     // let obj = this.el.object3D;
     // let pos = this.position;
-    let pos = this.el.getAttribute('position');
-    this.el.setAttribute('position', { x: pos.x, y: pos.y+0.01, z: pos.z });
+    let pos = this.el.getAttribute("position");
+    this.el.setAttribute("position", { x: pos.x, y: pos.y, z: pos.z });
 
     // this.el.setObject3D('position', { x: -0.5, y: 0, z: 0 });
     // obj.position.set += 0.01;

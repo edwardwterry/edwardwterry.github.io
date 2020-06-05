@@ -46,7 +46,8 @@ $(document).ready(function () {
         ready_to_add_hit = false;
       }
 
-      console.log(hits);
+      // console.log(hits);
+      pruneHits();
 
       p.shader(theShader);
       theShader.setUniform('resolution', [width, height]);
@@ -56,6 +57,10 @@ $(document).ready(function () {
       c.rect(0,0,width, height);
       HTMLcontext.drawImage(c.canvas, 0, 0);
     };
+
+    function pruneHits(){
+      
+    }
   };
 
   myp5 = new p5(sketch);
@@ -69,6 +74,23 @@ $(document).ready(function () {
     entity.setAttribute("raycaster-listen", "");
     entity.setAttribute("scale", { x: 0.1, y: 0.1, z: 0.1 });
     entity.setAttribute("position", { x: i * 0.2, y: 1, z: -3 });
+    sceneElement.appendChild(entity);
+  }
+
+  
+
+  let num_cylinders = 12;
+  for (let i = 0; i < num_cylinders; i++) {
+    let center = { x: 1, y: 1, z: -1 };
+    let entity = document.createElement("a-entity");
+    let cyl = document.createElement("a-entity");
+    entity.setAttribute("rotation", { x: 0, y: 360 / num_cylinders * i, z: 0 });
+    cyl.setAttribute("bubble-shooter", "");
+    cyl.setAttribute("material", "side: double");
+    cyl.setAttribute("position", {x: 0.5, y: 0, z: 0});
+    cyl.setAttribute("rotation", { x: 0, y: 0, z: -30 });
+    // entity.setAttribute("rotation", { x: center.x + Math.cos(i * 2*Math.PI / num_cylinders), z: center.z + Math.sin(i * 2*Math.PI / num_cylinders), y: 0 });
+    entity.appendChild(cyl);
     sceneElement.appendChild(entity);
   }
 });
@@ -253,5 +275,15 @@ AFRAME.registerComponent("bubble", {
     // // console.log(this.el);
     // // this.camera.update();//this.el.sceneEl.renderer, this.el.sceneEl);
     // this.mesh.visible = true;
+  },
+});
+
+AFRAME.registerComponent("bubble-shooter", {
+  init: function () {
+    let el = this.el;
+    this.geometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 32, 1, true);
+    this.material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    el.setObject3D("mesh", this.mesh);
   },
 });

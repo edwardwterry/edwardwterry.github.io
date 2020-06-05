@@ -68,30 +68,53 @@ $(document).ready(function () {
   let sceneElement = document.querySelector("a-scene");
 
   for (let i = 0; i < 10; i++) {
-    let entity = document.createElement("a-entity");
-    entity.setAttribute("bubble", "");
-    entity.setAttribute("id", i);
-    entity.setAttribute("raycaster-listen", "");
-    entity.setAttribute("scale", { x: 0.1, y: 0.1, z: 0.1 });
-    entity.setAttribute("position", { x: i * 0.2, y: 1, z: -3 });
-    sceneElement.appendChild(entity);
+
   }
 
-  
-
   let num_cylinders = 12;
+  let bubble_shooter_assy = document.createElement("a-entity");
+  bubble_shooter_assy.setAttribute("id", 'bubble-shooter');
+  sceneElement.appendChild(bubble_shooter_assy);
+
   for (let i = 0; i < num_cylinders; i++) {
-    let center = { x: 1, y: 1, z: -1 };
     let entity = document.createElement("a-entity");
+    entity.setAttribute("position", {x: 0, y: 0, z: -2});
+    entity.setAttribute("id", i);
     let cyl = document.createElement("a-entity");
     entity.setAttribute("rotation", { x: 0, y: 360 / num_cylinders * i, z: 0 });
     cyl.setAttribute("bubble-shooter", "");
     cyl.setAttribute("material", "side: double");
     cyl.setAttribute("position", {x: 0.5, y: 0, z: 0});
     cyl.setAttribute("rotation", { x: 0, y: 0, z: -30 });
-    // entity.setAttribute("rotation", { x: center.x + Math.cos(i * 2*Math.PI / num_cylinders), z: center.z + Math.sin(i * 2*Math.PI / num_cylinders), y: 0 });
     entity.appendChild(cyl);
-    sceneElement.appendChild(entity);
+    bubble_shooter_assy.appendChild(entity);
+  }
+
+  setInterval(spawnBubbles, 3000);
+  function spawnBubbles() { 
+    let id = Math.floor(Math.random() * num_cylinders);
+    let shooter = document.getElementById('bubble-shooter');
+    // console.log(shooter);//.children[id]);
+    let height = shooter.children[id].children[0].components['bubble-shooter'].mesh.geometry.parameters.height;
+    let above_ground = height / 2.0;
+    let elev_angle = Math.abs(shooter.children[id].children[0].components.rotation.data.z);
+    let tip_pos = {x: shooter.children[id].children[0].components.position.data.x + above_ground * Math.sin(elev_angle*Math.PI/180.0),
+    y: shooter.children[id].children[0].components.position.data.y + above_ground * Math.cos(elev_angle*Math.PI/180.0), z: 0};
+    console.log(tip_pos );
+    // let tip_projected = [shooter.components.position.data.x + shooter.children[0].components.position.x * Math.cos(shooter.components.rotation.data.y), 
+    // shooter.components.position.data.y + shooter.children[0].components.position.x * Math.sin(shooter.components.rotation.data.y), 0];
+    // console.log(height);
+    // if (id.el.attributes[0].name == "bubble") {
+    //   $("[id=" + id.el.id + "]").remove();
+    // }
+    let entity = document.createElement("a-entity");
+    entity.setAttribute("bubble", "");
+    // entity.setAttribute("id", id);
+    entity.setAttribute("raycaster-listen", "");
+    // entity.setAttribute("scale", { x: 0.1, y: 0.1, z: 0.1 });
+    entity.setAttribute("position", tip_pos);
+    entity.setAttribute("velocity", { x: 0, y: 0, z: 0 });
+    shooter.children[id].appendChild(entity);
   }
 });
 
@@ -241,7 +264,7 @@ AFRAME.registerComponent("bubble", {
     };
 
     // Create geometry.
-    this.geometry = new THREE.SphereGeometry(1, 32, 32);
+    this.geometry = new THREE.SphereGeometry(0.1, 32, 32);
 
     // Create material.
     this.material = new THREE.ShaderMaterial({
@@ -259,12 +282,15 @@ AFRAME.registerComponent("bubble", {
 
     // Set mesh on entity.
     el.setObject3D("mesh", this.mesh);
+    // this.el.setAttribute("position", { x: 0, y: 0, z: 0 });
+    // this.el.setAttribute("velocity", { x: 0, y: 0, z: 0 });
+    // this.el.setAttribute("acceleration", { x: 0, y: -9.8, z: 0 });
   },
   tick: function () {
     // let obj = this.el.object3D;
     // let pos = this.position;
-    let pos = this.el.getAttribute("position");
-    this.el.setAttribute("position", { x: pos.x, y: pos.y, z: pos.z });
+    // let pos = this.el.getAttribute("position");
+
 
     // this.el.setObject3D('position', { x: -0.5, y: 0, z: 0 });
     // obj.position.set += 0.01;

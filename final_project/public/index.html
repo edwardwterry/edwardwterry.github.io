@@ -29,11 +29,19 @@
           id="cloud-mtl"
           src="assets/blender/cloud.mtl"
         ></a-asset-item>
+        <a-asset-item
+          id="fan"
+          src="assets/blender/fan.obj"
+        ></a-asset-item>
+        <a-asset-item
+          id="fan"
+          src="assets/blender/fan.mtl"
+        ></a-asset-item>        
         <img id="ripples" src="assets/ripples.png">
       </a-assets>
 
     <!-- shell -->
-    <a-entity position="0 0 9">
+    <a-entity id="room1" position="0 0 5">
       <a-entity
         obj-model="obj: #cloud-obj; mtl: #cloud-mtl;"
         scale="0.0075 0.0075 0.0075"
@@ -48,6 +56,17 @@
                 >
       </a-entity>         
     </a-entity>
+
+    <a-entity id="room2" position="5 0 0">
+      <a-entity
+        fan
+        obj-model="obj: #fan; mtl: #fan;"
+        scale="0.0075 0.0075 0.0075"
+        position="0 0.5 0"
+        raycaster-listen
+      ></a-entity>
+    
+    </a-entity>    
 
 
 

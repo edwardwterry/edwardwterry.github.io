@@ -306,3 +306,22 @@ AFRAME.registerComponent("bubble-shooter", {
     el.setObject3D("mesh", this.mesh);
   },
 });
+
+AFRAME.registerComponent("fan", {
+  schema: {
+    w: { type: "vec3" },
+  },
+  init: function () {
+    let el = this.el;
+    this.geometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 32, 1, true);
+    this.material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    el.setObject3D("mesh", this.mesh);
+  },
+  tick: function () {
+    let rot = this.el.getAttribute('rotation');
+    let vel = this.el.getAttribute('velocity');
+    let dt = 0.01;
+    this.el.setAttribute('rotation', {x: 0, y: rot.y + 1 , z: 0})
+  }
+});

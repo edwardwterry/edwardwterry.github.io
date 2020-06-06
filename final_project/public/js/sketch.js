@@ -67,47 +67,43 @@ $(document).ready(function () {
 
   let sceneElement = document.querySelector("a-scene");
 
-  for (let i = 0; i < 10; i++) {
+  // let num_cylinders = 12;
+  // let bubble_shooter_assy = document.createElement("a-entity");
+  // bubble_shooter_assy.setAttribute("id", 'bubble-shooter');
+  // sceneElement.appendChild(bubble_shooter_assy);
 
-  }
+  // for (let i = 0; i < num_cylinders; i++) {
+  //   let entity = document.createElement("a-entity");
+  //   entity.setAttribute("position", {x: 2, y: 0, z: -2});
+  //   entity.setAttribute("id", i);
+  //   let cyl = document.createElement("a-entity");
+  //   entity.setAttribute("rotation", { x: 0, y: 360 / num_cylinders * i, z: 0 });
+  //   cyl.setAttribute("bubble-shooter", "");
+  //   cyl.setAttribute("material", "side: double");
+  //   cyl.setAttribute("position", {x: 0.5, y: 0, z: 0});
+  //   cyl.setAttribute("rotation", { x: 0, y: 0, z: -30 });
+  //   entity.appendChild(cyl);
+  //   bubble_shooter_assy.appendChild(entity);
+  // }
 
-  let num_cylinders = 12;
-  let bubble_shooter_assy = document.createElement("a-entity");
-  bubble_shooter_assy.setAttribute("id", 'bubble-shooter');
-  sceneElement.appendChild(bubble_shooter_assy);
-
-  for (let i = 0; i < num_cylinders; i++) {
-    let entity = document.createElement("a-entity");
-    entity.setAttribute("position", {x: 0, y: 0, z: -2});
-    entity.setAttribute("id", i);
-    let cyl = document.createElement("a-entity");
-    entity.setAttribute("rotation", { x: 0, y: 360 / num_cylinders * i, z: 0 });
-    cyl.setAttribute("bubble-shooter", "");
-    cyl.setAttribute("material", "side: double");
-    cyl.setAttribute("position", {x: 0.5, y: 0, z: 0});
-    cyl.setAttribute("rotation", { x: 0, y: 0, z: -30 });
-    entity.appendChild(cyl);
-    bubble_shooter_assy.appendChild(entity);
-  }
-
-  setInterval(spawnBubbles, 3000);
-  function spawnBubbles() {
-    let id = Math.floor(Math.random() * num_cylinders);
-    let shooter = document.getElementById('bubble-shooter');
-    let height = shooter.children[id].children[0].components['bubble-shooter'].mesh.geometry.parameters.height;
-    let above_ground = height / 2.0;
-    let elev_angle = Math.abs(shooter.children[id].children[0].components.rotation.data.z);
-    let tip_pos = {x: shooter.children[id].children[0].components.position.data.x + above_ground * Math.sin(elev_angle*Math.PI/180.0),
-    y: shooter.children[id].children[0].components.position.data.y + above_ground * Math.cos(elev_angle*Math.PI/180.0), z: 0};
-    // console.log(tip_pos );
-    let entity = document.createElement("a-entity");
-    entity.setAttribute("bubble", "");
-    entity.setAttribute("id", id);
-    entity.setAttribute("raycaster-listen", "");
-    entity.setAttribute("position", tip_pos);
-    // entity.setAttribute("velocity", { x: 0.5, y: 0.866, z: 0 });
-    shooter.children[id].appendChild(entity);
-  }
+  // setInterval(spawnBubbles, 3000);
+  // function spawnBubbles() {
+  //   let id = Math.floor(Math.random() * num_cylinders);
+  //   let shooter = document.getElementById('bubble-shooter');
+  //   let height = shooter.children[id].children[0].components['bubble-shooter'].mesh.geometry.parameters.height; // TODO fix
+  //   let above_ground = height / 2.0;
+  //   let elev_angle = Math.abs(shooter.children[id].children[0].components.rotation.data.z);
+  //   let tip_pos = {x: shooter.children[id].children[0].components.position.data.x + above_ground * Math.sin(elev_angle*Math.PI/180.0),
+  //   y: shooter.children[id].children[0].components.position.data.y + above_ground * Math.cos(elev_angle*Math.PI/180.0), z: 0};
+  //   // console.log(tip_pos );
+  //   let entity = document.createElement("a-entity");
+  //   entity.setAttribute("bubble", "");
+  //   entity.setAttribute("id", id);
+  //   entity.setAttribute("raycaster-listen", "");
+  //   entity.setAttribute("position", tip_pos);
+  //   // entity.setAttribute("velocity", { x: 0.5, y: 0.866, z: 0 });
+  //   shooter.children[id].appendChild(entity);
+  // }
 });
 
 AFRAME.registerComponent("canvas-updater", {
@@ -181,15 +177,17 @@ AFRAME.registerComponent("raycaster-listen", {
       return;
     }
     id = intersection.object;
-    // console.log(id.el);
-    u = intersection.uv["x"];
-    // v = intersection.uv["y"];
-    // u = 1.0 - intersection.uv["x"];
-    v = 1.0 - intersection.uv["y"];
+    console.log(intersection.point);
+    if (intersection.uv){
+      u = intersection.uv["x"];
+      // v = intersection.uv["y"];
+      // u = 1.0 - intersection.uv["x"];
+      v = 1.0 - intersection.uv["y"];
+    }
 
     if (spacebar) {
       if (id.el.attributes[0].name == "bubble") {
-        $("[id=" + id.el.id + "]").remove();
+        $("[id=" + id.el.id + "]").remove(); // TODO don't remove the tube
       }
     }
     oscPort.send({
@@ -283,9 +281,11 @@ AFRAME.registerComponent("bubble", {
     // let pos = this.position;
     let pos = this.el.getAttribute("position");
     // let vel = this.el.getAttribute("velocity");
-    // console.log(this.el);
+    // console.log(t);
 
-    this.el.setAttribute('position', { x: pos.x + 0.02 * 0.5/2, y: pos.y + 0.02 * 0.866/2, z: pos.z });
+    this.el.setAttribute('position', { x: pos.x + 0.02 * 0.5 + Math.random()*0.01, y: pos.y + 0.02 * 0.866, z: pos.z });
+    // TODO get time since spawn
+    // this.el.setAttribute('position', { x: pos.x + 0.02 * 0.5 + Math.random()*0.01, y: pos.y + 0.02 * (0.866- 0.5 *0.02* 9.81 * (0.001*t)*(0.001*t)), z: pos.z });
     // obj.position.set += 0.01;
     // this.camera.position = this.mesh.position;
     // // console.log(this.camera.position);

@@ -21,7 +21,34 @@
       <!-- load assets -->
       <a-assets>
         <canvas id="custom-canvas" width='1024' height='256' crossorigin="anonymous"></canvas>
+        <a-asset-item
+          id="cloud-obj"
+          src="assets/blender/cloud.obj"
+        ></a-asset-item>
+        <a-asset-item
+          id="cloud-mtl"
+          src="assets/blender/cloud.mtl"
+        ></a-asset-item>
+        <img id="ripples" src="assets/ripples.png">
       </a-assets>
+
+    <!-- shell -->
+    <a-entity position="0 0 9">
+      <a-entity
+        obj-model="obj: #cloud-obj; mtl: #cloud-mtl;"
+        scale="0.0075 0.0075 0.0075"
+        position="0 1.5 0"
+        shadow="cast: true;"
+        raycaster-listen
+      ></a-entity>
+      <a-entity id="room0"
+                material="src: #ripples; side: double"
+                geometry="primitive: plane; width: 1; height: 1;"       
+                position="0 1 0" rotation="90 0 0"
+                >
+      </a-entity>         
+    </a-entity>
+
 
 
       <!-- default environment -->
@@ -51,7 +78,46 @@
                 >
       </a-entity>     -->
 
+      <a-entity id="main-wall"
+                material="side: double"
+                geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+                thetaStart: 15; thetaLength: 60"
+                position="0 1 0" rotation="0 0 0"
+                >
+      </a-entity>
+
+      <a-entity id="main-wall"
+                material="side: double"
+                geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+                thetaStart: 105; thetaLength: 60"
+                position="0 1 0" rotation="0 0 0"
+                >
+      </a-entity>      
+
+      <a-entity id="main-wall"
+                material="side: double"
+                geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+                thetaStart: 195; thetaLength: 60"
+                position="0 1 0" rotation="0 0 0"
+                >
+      </a-entity>        
+
+      <a-entity id="main-wall"
+                material="side: double"
+                geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+                thetaStart: 285; thetaLength: 60"
+                position="0 1 0" rotation="0 0 0"
+                >
+      </a-entity>       
+      
       <a-entity id="room0"
+                material="color: #BBB; side: double"
+                geometry="primitive: plane; width: 1; height: 3;"       
+                position="-4.88 1.5 -1.0" rotation="0 0 0"
+                >
+      </a-entity>      
+
+      <!-- <a-entity id="room0"
                 material="src: #custom-canvas; side: double; metalness:0.7"
                 geometry="primitive: plane; width: 4; height: 1;"       
                 position="0 1.5 -2" rotation="0 0 0"
@@ -59,7 +125,7 @@
                 canvas-updater
                 raycaster-listen
                 >
-      </a-entity>          
+      </a-entity>           -->
 
       <!-- lights -->
       <!-- <a-entity light="type:point;" position="0 2 0"></a-entity>

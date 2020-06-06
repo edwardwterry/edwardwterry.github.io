@@ -91,29 +91,21 @@ $(document).ready(function () {
   }
 
   setInterval(spawnBubbles, 3000);
-  function spawnBubbles() { 
+  function spawnBubbles() {
     let id = Math.floor(Math.random() * num_cylinders);
     let shooter = document.getElementById('bubble-shooter');
-    // console.log(shooter);//.children[id]);
     let height = shooter.children[id].children[0].components['bubble-shooter'].mesh.geometry.parameters.height;
     let above_ground = height / 2.0;
     let elev_angle = Math.abs(shooter.children[id].children[0].components.rotation.data.z);
     let tip_pos = {x: shooter.children[id].children[0].components.position.data.x + above_ground * Math.sin(elev_angle*Math.PI/180.0),
     y: shooter.children[id].children[0].components.position.data.y + above_ground * Math.cos(elev_angle*Math.PI/180.0), z: 0};
-    console.log(tip_pos );
-    // let tip_projected = [shooter.components.position.data.x + shooter.children[0].components.position.x * Math.cos(shooter.components.rotation.data.y), 
-    // shooter.components.position.data.y + shooter.children[0].components.position.x * Math.sin(shooter.components.rotation.data.y), 0];
-    // console.log(height);
-    // if (id.el.attributes[0].name == "bubble") {
-    //   $("[id=" + id.el.id + "]").remove();
-    // }
+    // console.log(tip_pos );
     let entity = document.createElement("a-entity");
     entity.setAttribute("bubble", "");
-    // entity.setAttribute("id", id);
+    entity.setAttribute("id", id);
     entity.setAttribute("raycaster-listen", "");
-    // entity.setAttribute("scale", { x: 0.1, y: 0.1, z: 0.1 });
     entity.setAttribute("position", tip_pos);
-    entity.setAttribute("velocity", { x: 0, y: 0, z: 0 });
+    // entity.setAttribute("velocity", { x: 0.5, y: 0.866, z: 0 });
     shooter.children[id].appendChild(entity);
   }
 });
@@ -286,13 +278,14 @@ AFRAME.registerComponent("bubble", {
     // this.el.setAttribute("velocity", { x: 0, y: 0, z: 0 });
     // this.el.setAttribute("acceleration", { x: 0, y: -9.8, z: 0 });
   },
-  tick: function () {
+  tick: function (t) {
     // let obj = this.el.object3D;
     // let pos = this.position;
-    // let pos = this.el.getAttribute("position");
+    let pos = this.el.getAttribute("position");
+    // let vel = this.el.getAttribute("velocity");
+    // console.log(this.el);
 
-
-    // this.el.setObject3D('position', { x: -0.5, y: 0, z: 0 });
+    this.el.setAttribute('position', { x: pos.x + 0.02 * 0.5/2, y: pos.y + 0.02 * 0.866/2, z: pos.z });
     // obj.position.set += 0.01;
     // this.camera.position = this.mesh.position;
     // // console.log(this.camera.position);

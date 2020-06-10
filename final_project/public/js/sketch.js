@@ -258,8 +258,16 @@ AFRAME.registerComponent("raycaster-listen", {
 
     if (spacebar && ready_to_add_hit) {
       if (intersection.object.el.id == "cloud"){
-        cloud_intersection = intersection.point;
-        console.log(cloud_intersection);
+        let pt = intersection.point;
+        console.log(pt);
+        let raindrop = document.createElement("a-entity");
+        raindrop.setAttribute("raindrop", "");
+        raindrop.setAttribute("position", pt);     
+        raindrop.setAttribute("material", "opacity: 0.5");
+        let scene = document.querySelector('a-scene');
+        console.log(scene);
+        scene.appendChild(raindrop);
+
       }
     //   if (id.el.attributes[0].name == "bubble") {
     //     $("[id=" + id.el.id + "]").remove(); // TODO don't remove the tube
@@ -386,7 +394,7 @@ AFRAME.registerComponent("bubble-shooter", {
 AFRAME.registerComponent("raindrop", {
   init: function () {
     let el = this.el;
-    this.geometry = new THREE.SphereGeometry(0.05, 16, 16);
+    this.geometry = new THREE.SphereGeometry(0.01, 16, 16);
     this.material = new THREE.MeshBasicMaterial({color: 0x6df4ff});
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     el.setObject3D("mesh", this.mesh);

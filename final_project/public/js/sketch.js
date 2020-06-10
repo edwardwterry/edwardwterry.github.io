@@ -262,6 +262,8 @@ AFRAME.registerComponent("raycaster-listen", {
     }
 
     if (spacebar && ready_to_add_hit) {
+
+      //cloud 
       if (intersection.object.el.id == "cloud"){
         let pt = intersection.point;
         console.log(pt);
@@ -272,16 +274,16 @@ AFRAME.registerComponent("raycaster-listen", {
         let scene = document.querySelector('a-scene');
         console.log(scene);
         scene.appendChild(raindrop);
-
       }
 
-    }
-    if (spacebar){
+      //fan
       if (intersection.object.el.attributes[0].name == "fan") {
-        var fans = document.querySelectorAll('[fan]');//.components.fan;
+        var fans = document.querySelectorAll('[fan]');
+        var balls = document.querySelectorAll('[ball]');
         for (var i = 0; i < fans.length; i++) {
           if (i == intersection.object.el.id){
             fans[i].components.fan.increase();
+            balls[i].components.ball.raise();
           }
         }
       }
@@ -438,7 +440,7 @@ AFRAME.registerComponent("ball", {
   raise: function() {
     let raise_incr = 0.05;
     let pos = this.el.getAttribute('position');
-    this.el.setAttribute('position', {x: 0, y: Math.max(pos.y + raise_incr, 1.0) , z: 0});
+    this.el.setAttribute('position', {x: 0, y: Math.min(pos.y + raise_incr, 1.5) , z: 0});
   }
 });
 
@@ -458,6 +460,6 @@ AFRAME.registerComponent("fan", {
     this.el.setAttribute('rotation', {x: 0, y: rot.y + omega.y*dt , z: 0})
   },
   increase: function() {
-    this.data.omega.y += 0.01;
+    this.data.omega.y += 0.05;
   }
 });

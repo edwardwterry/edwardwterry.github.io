@@ -253,8 +253,7 @@ AFRAME.registerComponent("raycaster-listen", {
     if (!intersection) {
       return;
     }
-    id = intersection.object;
-    console.log(intersection);
+    // console.log(intersection);
     if (intersection.uv){
       u = intersection.uv["x"];
       // v = intersection.uv["y"];
@@ -278,10 +277,13 @@ AFRAME.registerComponent("raycaster-listen", {
 
     }
     if (spacebar){
-      if (id.el.attributes[0].name == "fan") {
-        var fooComponent = document.querySelector('[fan]').components.fan;
-        fooComponent.increase();
-        // $("[id=" + id.el.id + "]").raise(); // TODO don't remove the tube
+      if (intersection.object.el.attributes[0].name == "fan") {
+        var fans = document.querySelectorAll('[fan]');//.components.fan;
+        for (var i = 0; i < fans.length; i++) {
+          if (i == intersection.object.el.id){
+            fans[i].components.fan.increase();
+          }
+        }
       }
     }
 
@@ -456,6 +458,6 @@ AFRAME.registerComponent("fan", {
     this.el.setAttribute('rotation', {x: 0, y: rot.y + omega.y*dt , z: 0})
   },
   increase: function() {
-    this.data.omega.y += 0.1;
+    this.data.omega.y += 0.01;
   }
 });

@@ -266,18 +266,19 @@ AFRAME.registerComponent("raycaster-listen", {
       //cloud 
       if (intersection.object.el.id == "cloud"){
         let pt = intersection.point;
-        console.log(pt);
+        // console.log(pt);
         let raindrop = document.createElement("a-entity");
         raindrop.setAttribute("raindrop", "");
         raindrop.setAttribute("position", pt);     
         raindrop.setAttribute("material", "opacity: 0.5");
         let scene = document.querySelector('a-scene');
-        console.log(scene);
+        // console.log(scene);
         scene.appendChild(raindrop);
       }
 
       //fan
       if (intersection.object.el.attributes[0].name == "fan") {
+        // https://aframe.io/docs/1.0.0/introduction/javascript-events-dom-apis.html#looping-over-entities-from-queryselectorall
         var fans = document.querySelectorAll('[fan]');
         var balls = document.querySelectorAll('[ball]');
         for (var i = 0; i < fans.length; i++) {
@@ -408,6 +409,10 @@ AFRAME.registerComponent("bubble-shooter", {
 });
 
 AFRAME.registerComponent("raindrop", {
+  schema: {
+    acc: { type: 'vec3', default: {x: 0, y: -0.0000005, z: 0}},
+    vel: { type: 'vec3', default: {x: 0, y: 0, z: 0}}
+  },
   multiple: true,
 
   init: function () {
@@ -417,6 +422,12 @@ AFRAME.registerComponent("raindrop", {
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     el.setObject3D("mesh", this.mesh);
   },
+
+  tick: function (t, dt) {
+    let pos = this.el.getAttribute('position');
+    this.data.vel.y = this.data.vel.y + dt * this.data.acc.y;
+    this.el.setAttribute('position', {x: pos.x, y: pos.y + this.data.vel.y * dt, z: pos.z});
+  }
 });
 
 AFRAME.registerComponent("ball", {
@@ -432,15 +443,15 @@ AFRAME.registerComponent("ball", {
 
   tick: function (t, dt) {
     let rand_incr = Math.random() * 2.0 - 1.0;
-    let noise_factor = 5e-5
+    let noise_factor = 5e-5;
     let pos = this.el.getAttribute('position');
-    this.el.setAttribute('position', {x: 0, y: pos.y + rand_incr*noise_factor*dt, z: 0});
+    this.el.setAttribute('position', {x: 0, y: Math.max(pos.y + rand_incr*noise_factor*dt, -0.4), z: 0});
   },
 
   raise: function() {
     let raise_incr = 0.05;
     let pos = this.el.getAttribute('position');
-    this.el.setAttribute('position', {x: 0, y: Math.min(pos.y + raise_incr, 1.5) , z: 0});
+    this.el.setAttribute('position', {x: 0, y: Math.min(pos.y + raise_incr, 1.0) , z: 0}); // TODO slerp
   }
 });
 
@@ -460,6 +471,6 @@ AFRAME.registerComponent("fan", {
     this.el.setAttribute('rotation', {x: 0, y: rot.y + omega.y*dt , z: 0})
   },
   increase: function() {
-    this.data.omega.y += 0.05;
+    this.data.omega.y += 0.03;
   }
 });

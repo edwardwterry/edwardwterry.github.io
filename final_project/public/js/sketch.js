@@ -132,8 +132,14 @@ $(document).ready(function () {
     cyl.setAttribute("material", "side: double; opacity: 0.5");
     cyl.setAttribute("position", {x: 1, y: 0.5, z: 0});
     let fan = document.createElement("a-entity");
-    fan.setAttribute("fan", "");
+    fan.setAttribute("fan", '');
+    fan.setAttribute("id", i);
     fan.setAttribute("position", {x: 0, y: -0.4, z: 0});
+    fan.setAttribute('raycaster-listen', '');
+    let ball = document.createElement("a-entity");
+    ball.setAttribute("ball", "");
+    ball.setAttribute("position", {x: 0, y: 0, z: 0});    
+    cyl.appendChild(ball);
     cyl.appendChild(fan);
     entity.appendChild(cyl);
     bubble_shooter_assy.appendChild(entity);
@@ -248,7 +254,7 @@ AFRAME.registerComponent("raycaster-listen", {
       return;
     }
     id = intersection.object;
-    // console.log(intersection);
+    console.log(intersection);
     if (intersection.uv){
       u = intersection.uv["x"];
       // v = intersection.uv["y"];
@@ -269,10 +275,16 @@ AFRAME.registerComponent("raycaster-listen", {
         scene.appendChild(raindrop);
 
       }
-    //   if (id.el.attributes[0].name == "bubble") {
-    //     $("[id=" + id.el.id + "]").remove(); // TODO don't remove the tube
-    //   }
+
     }
+    if (spacebar){
+      if (id.el.attributes[0].name == "fan") {
+        var fooComponent = document.querySelector('[fan]').components.fan;
+        fooComponent.increase();
+        // $("[id=" + id.el.id + "]").raise(); // TODO don't remove the tube
+      }
+    }
+
     // oscPort.send({
     //   address: "/wall_ray",
     //   args: [
@@ -392,27 +404,58 @@ AFRAME.registerComponent("bubble-shooter", {
 });
 
 AFRAME.registerComponent("raindrop", {
+  multiple: true,
+
   init: function () {
     let el = this.el;
-    this.geometry = new THREE.SphereGeometry(0.01, 16, 16);
+    this.geometry = new THREE.SphereGeometry(0.007, 16, 16);
     this.material = new THREE.MeshBasicMaterial({color: 0x6df4ff});
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     el.setObject3D("mesh", this.mesh);
   },
 });
 
+AFRAME.registerComponent("ball", {
+  multiple: true,
+
+  init: function () {
+    let el = this.el;
+    this.geometry = new THREE.SphereGeometry(0.15, 16, 16);
+    this.material = new THREE.MeshBasicMaterial({color: 0x6df4ff});
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    el.setObject3D("mesh", this.mesh);
+  },
+
+  tick: function (t, dt) {
+    let rand_incr = Math.random() * 2.0 - 1.0;
+    let noise_factor = 5e-5
+    let pos = this.el.getAttribute('position');
+    this.el.setAttribute('position', {x: 0, y: pos.y + rand_incr*noise_factor*dt, z: 0});
+  },
+
+  raise: function() {
+    let raise_incr = 0.05;
+    let pos = this.el.getAttribute('position');
+    this.el.setAttribute('position', {x: 0, y: Math.max(pos.y + raise_incr, 1.0) , z: 0});
+  }
+});
+
 AFRAME.registerComponent("fan", {
   schema: {
-    w: { type: "vec3" , default: {x: 0, y: 1, z: 0}},
+    omega: { type: "vec3", default: {x: 0, y: 0.1, z: 0} },
   },
+  multiple: true,
   init: function () {
     this.el.setAttribute('scale', {x: 0.2, y: 0.2, z: 0.2});
+    this.el.setAttribute('rotation', {x: 0, y: 0, z: 0});
     this.el.setAttribute('obj-model', 'obj: #fan; mtl: #fan;');
   },
-  tick: function () {
+  tick: function (t, dt) {
+    let omega = this.data.omega;
     let rot = this.el.getAttribute('rotation');
-    let w = this.el.getAttribute('w');
-    let dt = 0.01;
-    this.el.setAttribute('rotation', {x: 0, y: rot.y + dt , z: 0})
+    this.el.setAttribute('rotation', {x: 0, y: rot.y + omega.y*dt , z: 0})
+  },
+  increase: function() {
+    this.data.omega.y += 0.1;
   }
 });

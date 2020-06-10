@@ -20,7 +20,7 @@
     <a-scene shadow antialiasing>
       <!-- load assets -->
       <a-assets>
-        <canvas id="custom-canvas" width='1024' height='256' crossorigin="anonymous"></canvas>
+        <canvas id="custom-canvas" width='2048' height='512' crossorigin="anonymous"></canvas>
         <a-asset-item
           id="cloud-obj"
           src="assets/blender/cloud.obj"
@@ -31,11 +31,11 @@
         ></a-asset-item>
         <a-asset-item
           id="fan"
-          src="assets/blender/fan.obj"
+          src="assets/blender/vent_fan.obj"
         ></a-asset-item>
         <a-asset-item
           id="fan"
-          src="assets/blender/fan.mtl"
+          src="assets/blender/vent_fan.mtl"
         ></a-asset-item>        
         <img id="ripples" src="assets/ripples.png">
       </a-assets>
@@ -45,7 +45,7 @@
       <a-entity
         obj-model="obj: #cloud-obj; mtl: #cloud-mtl;"
         scale="0.0075 0.0075 0.0075"
-        position="0 1.5 0"
+        position="0 1.0 0"
         shadow="cast: true;"
         raycaster-listen
       ></a-entity>
@@ -57,17 +57,26 @@
       </a-entity>         
     </a-entity>
 
-    <a-entity id="room2" position="5 0 0">
-      <a-entity
+    <!-- <a-entity id="room2" position="5 0 0"> -->
+      <!-- <a-entity
+        bubble-shooter
+        obj-model="obj: #bubble-shooter; mtl: #fan;"
+        scale="0.0075 0.0075 0.0075"
+        position="0 0.5 0"
+      ></a-entity> -->
+      <!-- <a-entity
         fan
         obj-model="obj: #fan; mtl: #fan;"
         scale="0.0075 0.0075 0.0075"
         position="0 0.5 0"
-        raycaster-listen
-      ></a-entity>
+      ></a-entity> -->
     
-    </a-entity>    
-
+    <!-- </a-entity>     -->
+      <!-- <a-entity
+        fan
+        obj-model="obj: #fan; mtl: #fan;"
+        scale="0.0075 0.0075 0.0075"
+      ></a-entity> -->
 
 
       <!-- default environment -->
@@ -86,16 +95,16 @@
         animation="property:rotation; dur: 1000; to: 0 0 360; easing: linear; loop: true"
       >
       </a-entity> -->
-      <!-- <a-entity id="room0"
+      <a-entity id="room0"
                 material="src: #custom-canvas; side: double; metalness:0.7"
                 geometry="primitive: cylinder; width: 1; height: 4; open-ended: true; radius: 4;
-                thetaStart: 90; thetaLength: 180"
-                position="0 1 -2" rotation="0 0 0"
+                thetaStart: 60; thetaLength: 210"
+                position="0 1 -5" rotation="0 0 0"
                 scale="1 1 1"
                 canvas-updater
                 raycaster-listen
                 >
-      </a-entity>     -->
+      </a-entity>    
 
       <a-entity id="main-wall"
                 material="side: double"
@@ -127,14 +136,21 @@
                 thetaStart: 285; thetaLength: 60"
                 position="0 1 0" rotation="0 0 0"
                 >
-      </a-entity>       
+      </a-entity>     
       
-      <a-entity id="room0"
+      <a-entity id="floor"
+      material="side: double; color: #222"
+      geometry="primitive: plane; height: 30; width: 30;"
+      position="0 0.05 0" rotation="90 0 0"
+      >
+</a-entity>    
+      
+      <!-- <a-entity id="room0"
                 material="color: #BBB; side: double"
                 geometry="primitive: plane; width: 1; height: 3;"       
                 position="-4.88 1.5 -1.0" rotation="0 0 0"
                 >
-      </a-entity>      
+      </a-entity>       -->
 
       <!-- <a-entity id="room0"
                 material="src: #custom-canvas; side: double; metalness:0.7"

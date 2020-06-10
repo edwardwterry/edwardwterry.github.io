@@ -14,6 +14,47 @@ let hits = [];
 
 let expiry = 180; //secs
 
+// gameplay elements
+// balls
+class Ball {
+  constructor(id, height) {
+    this.id = id;
+    this.height = height;
+  }
+}
+
+// raindrops
+class Raindrop {
+  constructor(u, v, height) {
+    this.u = u;
+    this.v = v;
+    this.height = height;
+  }
+}
+
+// fireflies
+class Firefly {
+  constructor(u, v, x, y, z) {
+    this.u = u;
+    this.v = v;
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  }
+  fly3d(){
+    return;
+  }
+}
+
+// topo map
+class MapBeam {
+  constructor(theta, x) {
+    this.theta = theta;
+    this.x = x;
+  }
+}
+
+
 var oscPort = new osc.WebSocketPort({
   url: "ws://localhost:3000", // URL to your Web Socket server. // TODO change from localhost?
   metadata: true,
@@ -23,13 +64,17 @@ oscPort.open();
 $(document).ready(function () {
   // https://gist.github.com/wanbinkimoon/0771fea9b199ce5ac32edc8f6d815584
   const sketch = (p) => {
-    let width = 1024;
-    let height = 256;
+    let width = 2048;
+    let height = 512;
 
-    let theShader; 
+    let theShader;
+    let forestShader;
+    let forestImg;
 
     p.preload = () => {
       theShader = p.loadShader('js/basic.vert', 'js/basic.frag');
+      forestShader = p.loadShader('js/uniform.vert', 'js/uniform.frag');
+      forestImg = p.loadImage('assets/forest_small_trim.jpg');
     }
     p.setup = () => {
       c = p.createCanvas(width, height, p.WEBGL);
@@ -49,11 +94,15 @@ $(document).ready(function () {
       // console.log(hits);
       pruneHits();
 
-      p.shader(theShader);
-      theShader.setUniform('resolution', [width, height]);
-      theShader.setUniform('mouse', [p.map(u, 0, 1, 0, width), p.map(v, 0, 1, 0, height)]);
-      theShader.setUniform('time', p.frameCount * 0.01);
-      theShader.setUniform('draw', spacebar);
+      // p.shader(theShader);
+      // theShader.setUniform('resolution', [width, height]);
+      // theShader.setUniform('mouse', [p.map(u, 0, 1, 0, width), p.map(v, 0, 1, 0, height)]);
+      // theShader.setUniform('time', p.frameCount * 0.01);
+      // theShader.setUniform('draw', spacebar);
+
+      p.shader(forestShader);
+      forestShader.setUniform('imageTex', forestImg);
+
       c.rect(0,0,width, height);
       HTMLcontext.drawImage(c.canvas, 0, 0);
     };
@@ -67,24 +116,27 @@ $(document).ready(function () {
 
   let sceneElement = document.querySelector("a-scene");
 
-  // let num_cylinders = 12;
-  // let bubble_shooter_assy = document.createElement("a-entity");
-  // bubble_shooter_assy.setAttribute("id", 'bubble-shooter');
-  // sceneElement.appendChild(bubble_shooter_assy);
+  let num_cylinders = 12;
+  let bubble_shooter_assy = document.createElement("a-entity");
+  bubble_shooter_assy.setAttribute("id", 'bubble-shooter');
+  sceneElement.appendChild(bubble_shooter_assy);
 
-  // for (let i = 0; i < num_cylinders; i++) {
-  //   let entity = document.createElement("a-entity");
-  //   entity.setAttribute("position", {x: 2, y: 0, z: -2});
-  //   entity.setAttribute("id", i);
-  //   let cyl = document.createElement("a-entity");
-  //   entity.setAttribute("rotation", { x: 0, y: 360 / num_cylinders * i, z: 0 });
-  //   cyl.setAttribute("bubble-shooter", "");
-  //   cyl.setAttribute("material", "side: double");
-  //   cyl.setAttribute("position", {x: 0.5, y: 0, z: 0});
-  //   cyl.setAttribute("rotation", { x: 0, y: 0, z: -30 });
-  //   entity.appendChild(cyl);
-  //   bubble_shooter_assy.appendChild(entity);
-  // }
+  for (let i = 0; i < num_cylinders; i++) {
+    let entity = document.createElement("a-entity");
+    entity.setAttribute("position", {x: 8, y: 0, z: 0});
+    entity.setAttribute("id", i);
+    let cyl = document.createElement("a-entity");
+    entity.setAttribute("rotation", { x: 0, y: 360 / num_cylinders * i, z: 0 });
+    cyl.setAttribute("bubble-shooter", "");
+    cyl.setAttribute("material", "side: double; opacity: 0.5");
+    cyl.setAttribute("position", {x: 1, y: 0.5, z: 0});
+    let fan = document.createElement("a-entity");
+    fan.setAttribute("fan", "");
+    fan.setAttribute("position", {x: 0, y: -0.4, z: 0});
+    cyl.appendChild(fan);
+    entity.appendChild(cyl);
+    bubble_shooter_assy.appendChild(entity);
+  }
 
   // setInterval(spawnBubbles, 3000);
   // function spawnBubbles() {
@@ -126,7 +178,7 @@ AFRAME.registerComponent("collider-check", {
 
   init: function () {
     this.el.addEventListener("raycaster-intersection", function () {
-      console.log("Player hit something!");
+      // console.log("Player hit something!");
     });
   },
 });
@@ -177,7 +229,7 @@ AFRAME.registerComponent("raycaster-listen", {
       return;
     }
     id = intersection.object;
-    console.log(intersection.point);
+    // console.log(intersection.point);
     if (intersection.uv){
       u = intersection.uv["x"];
       // v = intersection.uv["y"];
@@ -300,8 +352,9 @@ AFRAME.registerComponent("bubble", {
 AFRAME.registerComponent("bubble-shooter", {
   init: function () {
     let el = this.el;
-    this.geometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 32, 1, true);
-    this.material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+    this.geometry = new THREE.CylinderGeometry(0.15, 0.15, 2.5, 32, 1, true);
+    // this.material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+    this.material = new THREE.MeshBasicMaterial();
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     el.setObject3D("mesh", this.mesh);
   },
@@ -309,19 +362,16 @@ AFRAME.registerComponent("bubble-shooter", {
 
 AFRAME.registerComponent("fan", {
   schema: {
-    w: { type: "vec3" },
+    w: { type: "vec3" , default: {x: 0, y: 1, z: 0}},
   },
   init: function () {
-    let el = this.el;
-    this.geometry = new THREE.CylinderGeometry(0.1, 0.1, 2, 32, 1, true);
-    this.material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
-    el.setObject3D("mesh", this.mesh);
+    this.el.setAttribute('scale', {x: 0.2, y: 0.2, z: 0.2});
+    this.el.setAttribute('obj-model', 'obj: #fan; mtl: #fan;');
   },
   tick: function () {
     let rot = this.el.getAttribute('rotation');
-    let vel = this.el.getAttribute('velocity');
+    let w = this.el.getAttribute('w');
     let dt = 0.01;
-    this.el.setAttribute('rotation', {x: 0, y: rot.y + 1 , z: 0})
+    this.el.setAttribute('rotation', {x: 0, y: rot.y + dt , z: 0})
   }
 });

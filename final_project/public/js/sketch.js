@@ -5,6 +5,7 @@ let ready_to_add_hit = false;
 let target_canvas;
 let u, v;
 let myp5;
+let cloud_intersection;
 
 let bubbles;
 
@@ -156,6 +157,24 @@ $(document).ready(function () {
   //   // entity.setAttribute("velocity", { x: 0.5, y: 0.866, z: 0 });
   //   shooter.children[id].appendChild(entity);
   // }
+
+  // var nLasers	= 14
+	// for(var i = 0; i < nLasers; i++){
+	// 	(function(){
+  //     var laserBeam	= new THREEx.LaserBeam()
+  //     let laserBeamEl = document.createElement('a-entity');
+  //     sceneElement.appendChild(laserBeamEl)
+      
+	// 		var laserCooked	= new THREEx.LaserCooked(laserBeam)
+	// 		// onRenderFcts.push(function(delta, now){
+	// 		// 	laserCooked.update(delta, now)
+	// 		// })	
+	// 		var object3d		= laserBeam.object3d
+	// 		object3d.position.x	= (i-nLasers/2)/2			
+	// 		object3d.position.y	= 4
+	// 		object3d.rotation.z	= -Math.PI/2			
+	// 	})()
+	// }
 });
 
 AFRAME.registerComponent("canvas-updater", {
@@ -183,22 +202,22 @@ AFRAME.registerComponent("collider-check", {
   },
 });
 
-AFRAME.registerComponent("screen", {
-  update: function () {
-    var material = new THREE.MeshBasicMaterial({
-      // color: "green",
-      wireframe: false,
-    });
+// AFRAME.registerComponent("screen", {
+//   update: function () {
+//     var material = new THREE.MeshBasicMaterial({
+//       // color: "green",
+//       wireframe: false,
+//     });
 
-    var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+//     var geometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
 
-    let canvasMap = new THREE.Texture(document.getElementById("custom-canvas"));
-    material.map = canvasMap;
-    material.map.needsUpdate = true;
-    material.needsUpdate = true;
-    this.el.setObject3D("mesh", new THREE.Mesh(geometry, material));
-  },
-});
+//     let canvasMap = new THREE.Texture(document.getElementById("custom-canvas"));
+//     material.map = canvasMap;
+//     material.map.needsUpdate = true;
+//     material.needsUpdate = true;
+//     this.el.setObject3D("mesh", new THREE.Mesh(geometry, material));
+//   },
+// });
 
 // --------------------------
 // RAYCASTING
@@ -229,7 +248,7 @@ AFRAME.registerComponent("raycaster-listen", {
       return;
     }
     id = intersection.object;
-    // console.log(intersection.point);
+    // console.log(intersection);
     if (intersection.uv){
       u = intersection.uv["x"];
       // v = intersection.uv["y"];
@@ -237,28 +256,32 @@ AFRAME.registerComponent("raycaster-listen", {
       v = 1.0 - intersection.uv["y"];
     }
 
-    if (spacebar) {
-      if (id.el.attributes[0].name == "bubble") {
-        $("[id=" + id.el.id + "]").remove(); // TODO don't remove the tube
+    if (spacebar && ready_to_add_hit) {
+      if (intersection.object.el.id == "cloud"){
+        cloud_intersection = intersection.point;
+        console.log(cloud_intersection);
       }
+    //   if (id.el.attributes[0].name == "bubble") {
+    //     $("[id=" + id.el.id + "]").remove(); // TODO don't remove the tube
+    //   }
     }
-    oscPort.send({
-      address: "/wall_ray",
-      args: [
-        {
-          type: "s",
-          value: id.el.id,
-        },
-        {
-          type: "f",
-          value: u,
-        },
-        {
-          type: "f",
-          value: v,
-        },
-      ],
-    });
+    // oscPort.send({
+    //   address: "/wall_ray",
+    //   args: [
+    //     {
+    //       type: "s",
+    //       value: id.el.id,
+    //     },
+    //     {
+    //       type: "f",
+    //       value: u,
+    //     },
+    //     {
+    //       type: "f",
+    //       value: v,
+    //     },
+    //   ],
+    // });
   },
 });
 // });
@@ -355,6 +378,16 @@ AFRAME.registerComponent("bubble-shooter", {
     this.geometry = new THREE.CylinderGeometry(0.15, 0.15, 2.5, 32, 1, true);
     // this.material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
     this.material = new THREE.MeshBasicMaterial();
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    el.setObject3D("mesh", this.mesh);
+  },
+});
+
+AFRAME.registerComponent("raindrop", {
+  init: function () {
+    let el = this.el;
+    this.geometry = new THREE.SphereGeometry(0.05, 16, 16);
+    this.material = new THREE.MeshBasicMaterial({color: 0x6df4ff});
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     el.setObject3D("mesh", this.mesh);
   },

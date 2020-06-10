@@ -12,6 +12,8 @@
     <script src="js/shaders/FresnelShader.js"></script>
 
     <script src="lib/p5.js"></script>
+    <script src='lib/threex.laserbeam.js'></script>
+    <script src='lib/threex.lasercooked.js'></script>
     <script src="js/sketch.js"></script>
     <!-- <style> .a-canvas { display: none; } </style> -->
   </head>
@@ -36,13 +38,22 @@
         <a-asset-item
           id="fan"
           src="assets/blender/vent_fan.mtl"
-        ></a-asset-item>        
+        ></a-asset-item>    
+        <a-asset-item
+          id="mountains"
+          src="assets/blender/mountains.obj"
+        ></a-asset-item>
+        <a-asset-item
+          id="mountains"
+          src="assets/blender/mountains.mtl"
+        ></a-asset-item>              
         <img id="ripples" src="assets/ripples.png">
       </a-assets>
 
     <!-- shell -->
     <a-entity id="room1" position="0 0 5">
       <a-entity
+        id="cloud"
         obj-model="obj: #cloud-obj; mtl: #cloud-mtl;"
         scale="0.0075 0.0075 0.0075"
         position="0 1.0 0"
@@ -106,6 +117,21 @@
                 >
       </a-entity>    
 
+      <a-entity id="mountains"
+                obj-model="obj: #mountains;"
+                material="side: double; metalness:0.7; wireframe: false; color: #BBB"
+                position="-8 1 0" rotation="0 0 0"
+                scale=' 0.1 0.1 0.1'
+                raycaster-listen
+                >
+        <a-entity
+          laser
+          raycaster="far: 20; interval: 1000; objects: .clickable"
+          rotation="90 0 0"
+        >
+        </a-entity>
+      </a-entity>        
+
       <a-entity id="main-wall"
                 material="side: double"
                 geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
@@ -139,11 +165,11 @@
       </a-entity>     
       
       <a-entity id="floor"
-      material="side: double; color: #222"
-      geometry="primitive: plane; height: 30; width: 30;"
-      position="0 0.05 0" rotation="90 0 0"
-      >
-</a-entity>    
+                material="side: double; color: #222"
+                geometry="primitive: plane; height: 30; width: 30;"
+                position="0 0.05 0" rotation="90 0 0"
+                >
+      </a-entity>    
       
       <!-- <a-entity id="room0"
                 material="color: #BBB; side: double"
@@ -184,6 +210,12 @@
           material="color: black; shader: flat"
         >
         </a-entity>
+      </a-entity>
+
+      <a-entity
+        laser
+        raycaster="far: 20; interval: 1000; objects: .clickable"
+      >
       </a-entity>
     </a-scene>
   </body>

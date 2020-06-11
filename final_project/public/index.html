@@ -18,7 +18,7 @@
     <!-- <style> .a-canvas { display: none; } </style> -->
   </head>
   <body>
-    <!-- <canvas id="custom-wwcanvas" width='1024' height='256' crossorigin="anonymous"></canvas> -->
+    <!-- <canvas id="custom-canvas" width='2048' height='512' crossorigin="anonymous"></canvas> -->
     <a-scene shadow antialiasing>
       <!-- load assets -->
       <a-assets>
@@ -48,6 +48,7 @@
           src="assets/blender/mountains.mtl"
         ></a-asset-item>              
         <img id="ripples" src="assets/ripples.png">
+        <img id="forest" src="assets/forest_small_trim.jpg">
       </a-assets>
 
     <!-- shell -->
@@ -106,16 +107,16 @@
         animation="property:rotation; dur: 1000; to: 0 0 360; easing: linear; loop: true"
       >
       </a-entity> -->
-      <a-entity id="room0"
-                material="src: #custom-canvas; side: double; metalness:0.7"
-                geometry="primitive: cylinder; width: 1; height: 4; open-ended: true; radius: 4;
-                thetaStart: 60; thetaLength: 210"
+      <!-- <a-entity id="room0"
+                material="src: #forest; side: double; metalness:0.7"
+                geometry="primitive: cylinder; height: 4; open-ended: true; radius: 3;
+                thetaStart: 30; thetaLength: 270"
                 position="0 1 -5" rotation="0 0 0"
                 scale="1 1 1"
                 canvas-updater
                 raycaster-listen
                 >
-      </a-entity>    
+      </a-entity>     -->
 
       <a-entity id="mountains"
                 obj-model="obj: #mountains;"
@@ -178,7 +179,7 @@
                 >
       </a-entity>       -->
 
-      <!-- <a-entity id="room0"
+      <a-entity id="room0"
                 material="src: #custom-canvas; side: double; metalness:0.7"
                 geometry="primitive: plane; width: 4; height: 1;"       
                 position="0 1.5 -2" rotation="0 0 0"
@@ -186,7 +187,7 @@
                 canvas-updater
                 raycaster-listen
                 >
-      </a-entity>           -->
+      </a-entity>          
 
       <!-- lights -->
       <!-- <a-entity light="type:point;" position="0 2 0"></a-entity>

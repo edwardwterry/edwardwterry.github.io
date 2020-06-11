@@ -1,10 +1,14 @@
 precision mediump float;
 
+#define NUM_CIRCLES 2
+
 // we need our texcoords for drawing textures
 varying vec2 vTexCoord;
 
 // images are sent to the shader as a variable type called sampler2D
 uniform sampler2D imageTex;
+uniform vec2 circles[NUM_CIRCLES];
+uniform vec2 resolution;
 
 // this is a function that turns an rgb value that goes from 0 - 255 into 0.0 - 1.0
 vec3 rgb(float r, float g, float b){
@@ -30,7 +34,8 @@ vec4 circle(float x, float y, float diam, vec3 col){
     c = clamp(c, 0.0,1.0);
   
     // send out the color, with the circle as the alpha channel  
-    return vec4(rgb(col.r, col.g, col.b), 1.0 - c);  
+    // return vec4(rgb(col.r, col.g, col.b), 1.0 - c);  
+    return vec4(rgb(col.r, col.g, col.b), c);  
 }
 
 void main() {
@@ -38,7 +43,7 @@ void main() {
   // lets flip them by inverting the y component
   vec2 uv = vTexCoord;
   uv.y = 1.0 - uv.y;
-  uv.y *= 1.4;
+  // uv.y *= 1.4;
 
   // we can access our image by using the GLSL shader function texture2D()
   // texture2D expects a sampler2D, and texture coordinates as it's input
@@ -48,11 +53,16 @@ void main() {
   // vec3 grn = vec3(224.0, 210.0, 70.0);
   vec3 grn = vec3(224.0, 255.0, 255.0);
     // call our circle function
-  vec4 circ = circle(1200.0, 200.0, 100.0, grn);
+  // int num_circles = circles.length();
+  // for (int i = 0; i < NUM_CIRCLES; i++){
+    vec4 circ = circle(resolution.x * 0.5, resolution.y * 0.5, 100.0, grn);
+    // vec4 circ = circle(resolution.x * circles[i].x, resolution.y * circles[i].y, 100.0, grn);
+    // im.rgb = mix(im.rgb, circ.rgb, 1.0-circ.a);
+
+  // }
 
   // lets invert the colors just for fun
   // cactus.rgb = 1.0 - cactus.rgb;
-  im.rgb = mix(im.rgb, circ.rgb, circ.a);
 
   gl_FragColor = im;
 }

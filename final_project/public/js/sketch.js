@@ -79,6 +79,9 @@ $(document).ready(function () {
     }
     p.setup = () => {
       c = p.createCanvas(width, height, p.WEBGL);
+      c.image(forestImg, 0, 0);
+      console.log(c.image(forestImg, 0, 0));
+      console.log(p.image(forestImg, 0, 0));
     };
 
     p.draw = () => {
@@ -100,11 +103,12 @@ $(document).ready(function () {
       // theShader.setUniform('mouse', [p.map(u, 0, 1, 0, width), p.map(v, 0, 1, 0, height)]);
       // theShader.setUniform('time', p.frameCount * 0.01);
       // theShader.setUniform('draw', spacebar);
+      // p.shader(forestShader);
+      // forestShader.setUniform('imageTex', forestImg);
+      // theShader.setUniform('resolution', [width, height]);
+      // forestShader.setUniform('circles', [[0.5, 0.5], [0.4, 0.4]]);
 
-      p.shader(forestShader);
-      forestShader.setUniform('imageTex', forestImg);
-
-      c.rect(0,0,width, height);
+      // c.rect(0,0,width, height);
       HTMLcontext.drawImage(c.canvas, 0, 0);
     };
 
@@ -114,6 +118,8 @@ $(document).ready(function () {
   };
 
   myp5 = new p5(sketch);
+
+
 
   let sceneElement = document.querySelector("a-scene");
 

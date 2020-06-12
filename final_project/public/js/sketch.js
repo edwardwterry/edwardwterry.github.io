@@ -72,7 +72,21 @@ $(document).ready(function () {
 	// 		object3d.position.y	= 4
 	// 		object3d.rotation.z	= -Math.PI/2			
 	// 	})()
-	// }
+  // }
+  
+  // periodically check for raindrops falling through the floor
+  setInterval(() => {
+    let ripple_surface = document.querySelector('#ripple-surface');
+    // loop through raindrops
+    let raindrops = document.querySelectorAll('[raindrop]');
+    for (let i = 0; i < raindrops.length; i++){
+      console.log(raindrops[i].object3D.position.y);
+      if (raindrops[i].object3D.position.y < ripple_surface.object3D.position.y){
+        raindrops[i].remove();
+      }
+    }
+  }, 100);
+
 });
 
 AFRAME.registerComponent("canvas-updater", {

@@ -21,6 +21,79 @@ var oscPort = new osc.WebSocketPort({
 oscPort.open();
 $(document).ready(function () {
 
+  const sketch = (p) => {
+    let width = 512;
+    let height = 512;
+
+    let cols;
+    let rows;
+    let current; // = new float[cols][rows];
+    let previous; // = new float[cols][rows];
+
+    let dampening = 0.99;
+
+    p.setup = () => {
+      p.pixelDensity(1);
+      c = p.createCanvas(width, height);
+      cols = width;
+      rows = height;
+      // The following line initializes a 2D cols-by-rows array with zeroes
+      // in every array cell, and is equivalent to this Processing line:
+      // current = new float[cols][rows];
+      current = new Array(cols).fill(0).map(n => new Array(rows).fill(0));
+      previous = new Array(cols).fill(0).map(n => new Array(rows).fill(0));
+    };
+
+    p.draw = () => {
+      // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
+      var HTMLcanvas = document.getElementById("ripple-canvas");
+      var HTMLcontext = HTMLcanvas.getContext("2d");
+      previous[200][200] = 500;
+      p.background(0);
+
+      p.loadPixels();
+      for (let i = 1; i < cols - 1; i++) {
+        for (let j = 1; j < rows - 1; j++) {
+          current[i][j] =
+            (previous[i - 1][j] +
+              previous[i + 1][j] +
+              previous[i][j - 1] +
+              previous[i][j + 1]) /
+              2 -
+            current[i][j];
+          current[i][j] = current[i][j] * dampening;
+          // Unlike in Processing, the pixels array in p5.js has 4 entries
+          // for each pixel, so we have to multiply the index by 4 and then
+          // set the entries for each color component separately.
+          let index = (i + j * cols) * 4;
+          p.pixels[index + 0] = current[i][j];
+          p.pixels[index + 1] = current[i][j];
+          p.pixels[index + 2] = current[i][j];
+        }
+      }
+      p.updatePixels();
+    
+      let temp = previous;
+      previous = current;
+      current = temp;
+
+      HTMLcontext.drawImage(c.canvas, 0, 0);
+    };
+
+
+
+function mouseDragged() {
+  previous[mouseX][mouseY] = 500;
+}
+
+function draw() {
+
+}
+
+  };
+
+  myp5 = new p5(sketch);  
+
   var HTMLcanvas = document.getElementById("custom-canvas");
   var HTMLcontext = HTMLcanvas.getContext("2d");
   let img = document.getElementById('forest');
@@ -80,7 +153,6 @@ $(document).ready(function () {
     // loop through raindrops
     let raindrops = document.querySelectorAll('[raindrop]');
     for (let i = 0; i < raindrops.length; i++){
-      console.log(raindrops[i].object3D.position.y);
       if (raindrops[i].object3D.position.y < ripple_surface.object3D.position.y){
         raindrops[i].remove();
       }
@@ -239,7 +311,7 @@ AFRAME.registerComponent("bubble-shooter", {
 
 AFRAME.registerComponent("raindrop", {
   schema: {
-    acc: { type: 'vec3', default: {x: 0, y: -0.0000005, z: 0}},
+    acc: { type: 'vec3', default: {x: 0, y: -0.000001, z: 0}},
     vel: { type: 'vec3', default: {x: 0, y: 0, z: 0}}
   },
   multiple: true,
@@ -271,7 +343,7 @@ AFRAME.registerComponent("ball", {
   },
 
   tick: function (t, dt) {
-    let rand_incr = Math.random() * 2.0 - 1.0;
+    let rand_incr = 0;// Math.random() * 2.0 - 1.0;
     let noise_factor = 5e-5;
     let pos = this.el.getAttribute('position');
     this.el.setAttribute('position', {x: 0, y: Math.max(pos.y + rand_incr*noise_factor*dt, -0.4), z: 0});

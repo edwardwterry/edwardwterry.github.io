@@ -23,6 +23,7 @@
       <!-- load assets -->
       <a-assets>
         <canvas id="custom-canvas" width='2048' height='512' crossorigin="anonymous"></canvas>
+        <canvas id="ripple-canvas" width='512' height='512' crossorigin="anonymous"></canvas>
         <a-asset-item
           id="cloud-obj"
           src="assets/blender/cloud.obj"
@@ -62,7 +63,7 @@
         raycaster-listen
       ></a-entity>
       <a-entity id="ripple-surface"
-                material="src: #ripples; side: double"
+                material="src: #ripple-canvas; side: double"
                 geometry="primitive: plane; width: 1; height: 1;"       
                 position="0 1 0" rotation="90 0 0"
                 >

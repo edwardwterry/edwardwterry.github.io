@@ -66,19 +66,21 @@ $(document).ready(function () {
   // https://gist.github.com/wanbinkimoon/0771fea9b199ce5ac32edc8f6d815584
   const sketch = (p) => {
     let width = 2048;
-    let height = 512;
+    let height = 256;
 
     let theShader;
     let forestShader;
     let forestImg;
 
     p.preload = () => {
-      theShader = p.loadShader('js/basic.vert', 'js/basic.frag');
-      forestShader = p.loadShader('js/uniform.vert', 'js/uniform.frag');
-      forestImg = p.loadImage('assets/forest_small_trim.jpg');
+      // theShader = p.loadShader('js/basic.vert', 'js/basic.frag');
+      // forestShader = p.loadShader('js/uniform.vert', 'js/uniform.frag');
     }
     p.setup = () => {
+      forestImg = p.loadImage('assets/forest_small_trim.jpg');
       c = p.createCanvas(width, height, p.WEBGL);
+      // c.image(forestImg, 0, 0);
+
     };
 
     p.draw = () => {
@@ -86,25 +88,25 @@ $(document).ready(function () {
       var HTMLcanvas = document.getElementById("custom-canvas");
       var HTMLcontext = HTMLcanvas.getContext("2d");
 
-      if (ready_to_add_hit){
-        let d = new Date();
-        hits.push([u, v, d.getTime()]);
-        ready_to_add_hit = false;
-      }
+      // if (ready_to_add_hit){
+      //   let d = new Date();
+      //   hits.push([u, v, d.getTime()]);
+      //   ready_to_add_hit = false;
+      // }
 
-      // console.log(hits);
-      pruneHits();
+      // // console.log(hits);
+      // pruneHits();
 
       // p.shader(theShader);
       // theShader.setUniform('resolution', [width, height]);
       // theShader.setUniform('mouse', [p.map(u, 0, 1, 0, width), p.map(v, 0, 1, 0, height)]);
       // theShader.setUniform('time', p.frameCount * 0.01);
       // theShader.setUniform('draw', spacebar);
+      // p.shader(forestShader);
+      // forestShader.setUniform('imageTex', forestImg);
 
-      p.shader(forestShader);
-      forestShader.setUniform('imageTex', forestImg);
-
-      c.rect(0,0,width, height);
+      // c.rect(0,0,width, height);
+      c.image(forestImg, 0, 0);
       HTMLcontext.drawImage(c.canvas, 0, 0);
     };
 
@@ -113,7 +115,12 @@ $(document).ready(function () {
     }
   };
 
-  myp5 = new p5(sketch);
+  // myp5 = new p5(sketch);
+
+  var HTMLcanvas = document.getElementById("custom-canvas");
+  var HTMLcontext = HTMLcanvas.getContext("2d");
+  let img = document.getElementById('forest');
+  HTMLcontext.drawImage(img, 0, 0);
 
   let sceneElement = document.querySelector("a-scene");
 
@@ -253,12 +260,10 @@ AFRAME.registerComponent("raycaster-listen", {
     if (!intersection) {
       return;
     }
-    // console.log(intersection);
     if (intersection.uv){
-      u = intersection.uv["x"];
-      // v = intersection.uv["y"];
-      // u = 1.0 - intersection.uv["x"];
-      v = 1.0 - intersection.uv["y"];
+      u = 1.0 - intersection.uv["x"];
+      v = intersection.uv["y"];
+      // console.log(u, v);
     }
 
     if (spacebar && ready_to_add_hit) {
@@ -288,6 +293,17 @@ AFRAME.registerComponent("raycaster-listen", {
           }
         }
       }
+
+      if (intersection.object.el.id == "forest-wall"){
+        let pt = intersection.point;
+        // console.log(pt);
+        let firefly = document.createElement("a-entity");
+        firefly.setAttribute("firefly", "");
+        firefly.setAttribute("position", pt);     
+        let scene = document.querySelector('a-scene');
+        scene.appendChild(firefly);
+      }
+      ready_to_add_hit = false;
     }
 
     // oscPort.send({
@@ -453,6 +469,21 @@ AFRAME.registerComponent("ball", {
     let pos = this.el.getAttribute('position');
     this.el.setAttribute('position', {x: 0, y: Math.min(pos.y + raise_incr, 1.0) , z: 0}); // TODO slerp
   }
+});
+
+AFRAME.registerComponent("firefly", {
+  init: function () {
+    let el = this.el;
+    this.geometry = new THREE.SphereGeometry(0.01, 16, 16);
+    this.material = new THREE.MeshBasicMaterial({color: 0xC7C34D});
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    el.setObject3D("mesh", this.mesh);
+  },
+
+  tick: function (t, dt) {
+    this.el.object3D.el.components.firefly.material.opacity = (Math.sin(t*0.002)+1.0)/2.0;// .color too
+    // console.log(this.el);
+  },
 });
 
 AFRAME.registerComponent("fan", {

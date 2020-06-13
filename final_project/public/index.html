@@ -22,7 +22,7 @@
     <a-scene shadow antialiasing>
       <!-- load assets -->
       <a-assets>
-        <canvas id="custom-canvas" width='2048' height='512' crossorigin="anonymous"></canvas>
+        <canvas id="forest-canvas" width='2048' height='512' crossorigin="anonymous"></canvas>
         <canvas id="ripple-canvas" width='512' height='512' crossorigin="anonymous"></canvas>
         <a-asset-item
           id="cloud-obj"
@@ -53,18 +53,19 @@
       </a-assets>
 
     <!-- shell -->
-    <a-entity id="room1" position="0 0 5">
+    <a-entity id="cloud-room" position="0 0 7">
       <a-entity
         id="cloud"
         obj-model="obj: #cloud-obj; mtl: #cloud-mtl;"
-        scale="0.0075 0.0075 0.0075"
+        scale="0.01 0.009 0.009"
         position="0 1.0 0"
+        rotation="0 90 0"
         shadow="cast: true;"
         raycaster-listen
       ></a-entity>
       <a-entity id="ripple-surface"
                 material="src: #ripple-canvas; side: double"
-                geometry="primitive: plane; width: 1; height: 1;"       
+                geometry="primitive: plane; width: 2.5; height: 2;"       
                 position="0 1 0" rotation="90 0 0"
                 >
       </a-entity>         
@@ -87,7 +88,7 @@
       >
       </a-entity> -->
       <a-entity id="forest-wall"
-                material="src: #custom-canvas; side: double; metalness:0.0"
+                material="src: #forest-canvas; side: double; metalness:0.0"
                 geometry="primitive: cylinder; height: 2.048; open-ended: true; radius: 2.5;
                 thetaStart: 0; thetaLength: 270"
                 position="0 1 -5.4" rotation="0 45 0"

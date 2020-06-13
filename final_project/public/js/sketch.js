@@ -12,6 +12,9 @@ let hits = [];
 
 let expiry = 180; //secs
 
+let ripple_u = 0.0;
+let ripple_v = 0.0;
+
 
 var oscPort = new osc.WebSocketPort({
   url: "ws://localhost:3000", // URL to your Web Socket server. // TODO change from localhost?
@@ -30,7 +33,7 @@ $(document).ready(function () {
     let current; // = new float[cols][rows];
     let previous; // = new float[cols][rows];
 
-    let dampening = 0.99;
+    let dampening = 1.0;
 
     p.setup = () => {
       p.pixelDensity(1);
@@ -48,7 +51,11 @@ $(document).ready(function () {
       // https://stackoverflow.com/questions/50966769/drawing-p5-js-canvas-inside-a-html-canvas-using-drawimage
       var HTMLcanvas = document.getElementById("ripple-canvas");
       var HTMLcontext = HTMLcanvas.getContext("2d");
-      previous[200][200] = 500;
+      x_pix = Math.floor(ripple_u * width);
+      z_pix = Math.floor(ripple_v * height);
+      console.log(x_pix, z_pix);
+      previous[x_pix+50][z_pix+50] = 500;
+      previous[235][301] = 500;
       p.background(0);
 
       p.loadPixels();
@@ -79,22 +86,11 @@ $(document).ready(function () {
 
       HTMLcontext.drawImage(c.canvas, 0, 0);
     };
-
-
-
-function mouseDragged() {
-  previous[mouseX][mouseY] = 500;
-}
-
-function draw() {
-
-}
-
   };
 
   myp5 = new p5(sketch);  
 
-  var HTMLcanvas = document.getElementById("custom-canvas");
+  var HTMLcanvas = document.getElementById("forest-canvas");
   var HTMLcontext = HTMLcanvas.getContext("2d");
   let img = document.getElementById('forest');
   HTMLcontext.drawImage(img, 0, 0);
@@ -225,11 +221,12 @@ AFRAME.registerComponent("raycaster-listen", {
       //cloud 
       if (intersection.object.el.id == "cloud"){
         let pt = intersection.point;
-        // console.log(pt);
+        // console.log(this.el.object3D.worldToLocal(intersection.object.parent.parent.position));
         let raindrop = document.createElement("a-entity");
         raindrop.setAttribute("raindrop", "");
-        raindrop.setAttribute("position", pt);     
+        raindrop.setAttribute("position", pt);
         raindrop.setAttribute("material", "opacity: 0.5");
+        
         let scene = document.querySelector('a-scene');
         // console.log(scene);
         scene.appendChild(raindrop);
@@ -328,6 +325,16 @@ AFRAME.registerComponent("raindrop", {
     let pos = this.el.getAttribute('position');
     this.data.vel.y = this.data.vel.y + dt * this.data.acc.y;
     this.el.setAttribute('position', {x: pos.x, y: pos.y + this.data.vel.y * dt, z: pos.z});
+    let ripple_surface = document.querySelector('#ripple-surface');
+    // console.log(ripple_surface);
+    if (this.el.getAttribute('position').y < ripple_surface.object3D.position.y) {
+      // console.log(this.el.object3D.worldToLocal(this.el.getAttribute('position')));
+      // console.log(this.el);
+    }
+    let cloud_room_pos = document.querySelector('#cloud-room').getAttribute('position');
+    ripple_u = (cloud_room_pos.x - this.el.getAttribute('position').x) / 2.5 + 0.5;
+    ripple_v = (cloud_room_pos.z - this.el.getAttribute('position').z) / 2.0 + 0.5;
+    // console.log(ripple_u, ripple_v);
   }
 });
 

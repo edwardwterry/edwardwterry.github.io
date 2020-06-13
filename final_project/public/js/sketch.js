@@ -33,7 +33,7 @@ $(document).ready(function () {
     let current; // = new float[cols][rows];
     let previous; // = new float[cols][rows];
 
-    let dampening = 1.0;
+    let dampening = 0.99;
 
     p.setup = () => {
       p.pixelDensity(1);
@@ -53,10 +53,10 @@ $(document).ready(function () {
       var HTMLcontext = HTMLcanvas.getContext("2d");
       x_pix = Math.floor(ripple_u * width);
       z_pix = Math.floor(ripple_v * height);
-      console.log(x_pix, z_pix);
-      previous[x_pix+50][z_pix+50] = 500;
-      previous[235][301] = 500;
-      p.background(0);
+      // console.log(x_pix, z_pix);
+      previous[x_pix][z_pix] = 500;
+      // previous[235][301] = 500;
+      p.background(87,185,255);
 
       p.loadPixels();
       for (let i = 1; i < cols - 1; i++) {
@@ -328,13 +328,10 @@ AFRAME.registerComponent("raindrop", {
     let ripple_surface = document.querySelector('#ripple-surface');
     // console.log(ripple_surface);
     if (this.el.getAttribute('position').y < ripple_surface.object3D.position.y) {
-      // console.log(this.el.object3D.worldToLocal(this.el.getAttribute('position')));
-      // console.log(this.el);
+      let cloud_room_pos = document.querySelector('#cloud-room').getAttribute('position');
+      ripple_u = 1.0 - ((cloud_room_pos.x - this.el.getAttribute('position').x) / 2.5 + 0.5);
+      ripple_v = (cloud_room_pos.z - this.el.getAttribute('position').z) / 2.0 + 0.5;      
     }
-    let cloud_room_pos = document.querySelector('#cloud-room').getAttribute('position');
-    ripple_u = (cloud_room_pos.x - this.el.getAttribute('position').x) / 2.5 + 0.5;
-    ripple_v = (cloud_room_pos.z - this.el.getAttribute('position').z) / 2.0 + 0.5;
-    // console.log(ripple_u, ripple_v);
   }
 });
 

@@ -193,11 +193,14 @@ AFRAME.registerComponent("raycaster-listen", {
     // hardcode the raycaster.
     this.el.addEventListener("raycaster-intersected", (evt) => {
       this.raycaster = evt.detail.el;
-      console.log('normal', this.raycaster);
+      // console.log('normal', this.raycaster);
+      console.log('mtn', AFRAME.scenes[0].querySelector('[raycaster__0]'));
+
     });
-    // this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
-    //   this.raycaster = null;
-    // });
+    this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
+      // console.log('normal', evt);
+      this.raycaster = null;
+    });
   },
 
   tick: function () {
@@ -284,15 +287,15 @@ AFRAME.registerComponent("raycaster-listen-mountain", {
     // Use events to figure out what raycaster is listening so we don't have to
     // hardcode the raycaster.
     this.el.addEventListener("raycaster-intersected", (evt) => {
-      console.log('raycaster-intersected');
+      // console.log('raycaster-intersected');
       this.raycaster = evt.detail.el;
-      console.log('mtn', this.raycaster);
+      console.log('mtn', AFRAME.scenes[0].querySelector('[raycaster]'));
 
     });
-    // this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
-    //   console.log(evt);
-    //   this.raycaster = null;
-    // });
+    this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
+      // console.log('mtn', evt);
+      this.raycaster = null;
+    });
   },
 
   tick: function () {

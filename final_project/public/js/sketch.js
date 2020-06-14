@@ -18,7 +18,7 @@ let ripple_v = 0.0;
 // tone setup
 let synth;
 let seq;
-let bpm = 70;
+let bpm = 100;
 
 let ball_scale_fract;
 let ball_scale;
@@ -103,7 +103,7 @@ $(document).ready(function () {
 
   let sceneElement = document.querySelector("a-scene");
 
-  let num_cylinders = 16;
+  let num_cylinders = 8;
   let bubble_shooter_assy = document.createElement("a-entity");
   bubble_shooter_assy.setAttribute("id", "bubble-shooter");
   sceneElement.appendChild(bubble_shooter_assy);
@@ -295,7 +295,7 @@ AFRAME.registerComponent("raycaster-listen", {
             fans[i].components.fan.increase();
             balls[i].components.ball.raise();
             ball_scale_fract[i] = Math.floor(balls[i].object3D.position.y * ball_scale.length);
-            seq.add(i, ball_scale[ball_scale_fract[i]]);
+            seq.at(i, ball_scale[ball_scale_fract[i]]);
           }
         }
       }

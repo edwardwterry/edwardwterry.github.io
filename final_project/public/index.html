@@ -47,7 +47,16 @@
         <a-asset-item
           id="mountains"
           src="assets/blender/mountains.mtl"
-        ></a-asset-item>              
+        ></a-asset-item>    
+        
+        <a-asset-item
+          id="mountain"
+          src="assets/blender/mount.obj"
+        ></a-asset-item>
+        <a-asset-item
+          id="mountain"
+          src="assets/blender/mount.mtl"
+        ></a-asset-item>          
         <img id="forest" src="assets/forest_small_trim.jpg">
         <img id="ripples" src="assets/ripples.png">
       </a-assets>
@@ -99,18 +108,22 @@
                 >
       </a-entity>    
 
-      <a-entity id="mountains"
-                obj-model="obj: #mountains;"
+      <a-entity id="mountain"
+                class="collidable"
+                obj-model="obj: #mountain;"
                 material="side: double; metalness:0.7; wireframe: false; color: #BBB"
-                position="-8 1 0" rotation="0 0 0"
-                scale=' 0.1 0.1 0.1'
-                raycaster-listen
+                position="-8 0.7 0" rotation="0 0 0"
+                scale='1 1 1'
+                raycaster-listen-mountain
                 >
-        <a-entity
-          laser
-          raycaster="far: 20; interval: 1000; objects: .clickable"
-          rotation="90 0 0"
-        >
+        <a-entity rotation='-90 0 0'>
+          <a-entity
+          position="0 0 1.5"
+          raycaster="showLine: true; far: 3; interval: 1000; objects: .collidable"
+          line="color: red;"
+          >
+
+          </a-entity>
         </a-entity>
       </a-entity>        
 
@@ -169,7 +182,7 @@
       >
         <a-entity
           cursor="fuse: true; fuseTimeout: 500"
-          raycaster="far: 20; interval: 1000; objects: .clickable"
+          raycaster="showLine: false; far: 20; interval: 1000; objects: .clickable"
           position="0 0 -0.5"
           geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"
           material="color: black; shader: flat"
@@ -177,10 +190,6 @@
         </a-entity>
       </a-entity>
 
-      <a-entity
-        laser
-        raycaster="far: 20; interval: 1000; objects: .clickable"
-      >
       </a-entity>
     </a-scene>
   </body>

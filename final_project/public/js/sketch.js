@@ -177,7 +177,7 @@ AFRAME.registerComponent("collider-check", {
 
   init: function () {
     this.el.addEventListener("raycaster-intersection", function () {
-      // console.log("Player hit something!");
+      console.log("Player hit something!");
     });
   },
 });
@@ -193,10 +193,11 @@ AFRAME.registerComponent("raycaster-listen", {
     // hardcode the raycaster.
     this.el.addEventListener("raycaster-intersected", (evt) => {
       this.raycaster = evt.detail.el;
+      console.log('normal', this.raycaster);
     });
-    this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
-      this.raycaster = null;
-    });
+    // this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
+    //   this.raycaster = null;
+    // });
   },
 
   tick: function () {
@@ -210,6 +211,7 @@ AFRAME.registerComponent("raycaster-listen", {
     if (!intersection) {
       return;
     }
+    console.log(intersection);
     if (intersection.uv){
       u = 1.0 - intersection.uv["x"];
       v = intersection.uv["y"];
@@ -274,6 +276,38 @@ AFRAME.registerComponent("raycaster-listen", {
     //     },
     //   ],
     // });
+  },
+});
+
+AFRAME.registerComponent("raycaster-listen-mountain", {
+  init: function () {
+    // Use events to figure out what raycaster is listening so we don't have to
+    // hardcode the raycaster.
+    this.el.addEventListener("raycaster-intersected", (evt) => {
+      console.log('raycaster-intersected');
+      this.raycaster = evt.detail.el;
+      console.log('mtn', this.raycaster);
+
+    });
+    // this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
+    //   console.log(evt);
+    //   this.raycaster = null;
+    // });
+  },
+
+  tick: function () {
+    if (!this.raycaster) {
+      return;
+    } // Not intersecting.
+
+    let intersection = this.raycaster.components.raycaster.getIntersection(
+      this.el
+    );
+    if (!intersection) {
+      return;
+    }
+    console.log(intersection);
+
   },
 });
 // });

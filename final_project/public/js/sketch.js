@@ -17,11 +17,18 @@ let ripple_v = 0.0;
 
 // tone setup
 let synth;
-let seq;
-let bpm = 100;
+let ball_seq;
+let forest_seq;
+let ripple_seq;
+let bpm = 72;
+let spm;
 
 let ball_scale_fract;
 let ball_scale;
+
+let forest_uv = [];
+let raindrop_uv = [];
+let synth3;
 
 var oscPort = new osc.WebSocketPort({
   url: "ws://localhost:3000", // URL to your Web Socket server. // TODO change from localhost?
@@ -157,35 +164,61 @@ $(document).ready(function () {
   // connect
   Tone.Transport.bpm.value = bpm;
 
+  let bps = bpm / 60.0;
+  let spb = 1 / bps;
+  spm = spb * 4.0;  
   const synthOptions = {
     attackNoise: 1,
     dampening: 6000,
     resonance: 0.7,
-    volume: 0,
+    volume: -10,
   };
 
   ball_scale = ["C3", "D3", "Eb3", "F3", "G3", "Ab3", "Bb3", "C4"];
   ball_scale_fract = new Array(num_cylinders);
-  ball_notes = new Array(num_cylinders);
+  ball_notes = [];
+  forest_notes = [''];
   for (let i = 0; i < ball_scale_fract.length; i++){
     ball_scale_fract[i] = 0;
     ball_notes[i] = ball_scale[ball_scale_fract[i]];
   }
-  const synth = new Tone.PluckSynth(synthOptions);
+  // forest_notes = ball_notes;
+  const synth = new Tone.PolySynth(synthOptions);
+  const synth2 = new Tone.PolySynth(synthOptions);
+  synth3 = new Tone.PolySynth(synthOptions);
   synth.toMaster();
+  synth2.toMaster();
+  synth3.toMaster();
 
-  seq = new Tone.Sequence(
+  ball_seq = new Tone.Sequence(
     function (time, note) {
-      synth.triggerAttackRelease(note, "4n", time);
+      synth.triggerAttackRelease(note, "8n", time);
     },
     ball_notes,
-    "4n"
+    "2n"
   ).start(0);
-  seq.loop = true;
-  // seq.humanize = true;
+  ball_seq.loop = true;
+  // ball_seq.humanize = true;
+
+  forest_seq = new Tone.Sequence(
+    function (time, note) {
+      // console.log('in forets seq', forest_notes);
+      // console.log('in forets seq', time, note);
+      synth2.triggerAttackRelease(note, "8n", time);
+    },
+    forest_notes,
+    "1n"
+  ).start(0);
+  forest_seq.loop = true;  
+  forest_seq.humanize = true;
 
   Tone.Transport.start();
 
+  function get_note_from_canvas_fract(fract) {
+    let index = Math.floor(fract * scale.length);
+    return scale[index];
+  }
+  
   function create_note(pt) {
     let fract = get_fraction_of_canvas(pt);
     seq.add(
@@ -193,6 +226,20 @@ $(document).ready(function () {
       get_note_from_canvas_fract(fract.y)
     );
   }
+
+  function get_fraction_of_canvas(point) {
+    return createVector(
+      point.x / window.innerWidth,
+      point.y / window.innerHeight
+    );
+  }
+
+  function get_secs_from_canvas_fract(fract) {
+    let bps = bpm / 60.0;
+    let spb = 1 / bps;
+    let spm = spb * 4.0;
+    return fract * spm;
+  }  
 
   // periodically check for raindrops falling through the floor
   setInterval(() => {
@@ -295,19 +342,34 @@ AFRAME.registerComponent("raycaster-listen", {
             fans[i].components.fan.increase();
             balls[i].components.ball.raise();
             ball_scale_fract[i] = Math.floor(balls[i].object3D.position.y * ball_scale.length);
-            seq.at(i, ball_scale[ball_scale_fract[i]]);
+            ball_seq.at(i, ball_scale[ball_scale_fract[i]]);
           }
         }
       }
 
       if (intersection.object.el.id == "forest-wall") {
         let pt = intersection.point;
+    
         // console.log(pt);
         let firefly = document.createElement("a-entity");
         firefly.setAttribute("firefly", "");
         firefly.setAttribute("position", pt);
         let scene = document.querySelector("a-scene");
         scene.appendChild(firefly);
+        forest_uv.push([u, v]);
+        // var fireflies = document.querySelectorAll("[firefly]");
+        for (var i = 0; i < forest_uv.length; i++) {
+          console.log(forest_uv[i][0] * spm,
+            ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]);
+            forest_seq.add(
+              forest_uv[i][0] * spm,
+              ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
+            );
+            forest_seq.at(
+            forest_uv[i][0] * spm / 2.0,
+            ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
+          );
+        }            
       }
       ready_to_add_hit = false;
     }
@@ -427,6 +489,8 @@ AFRAME.registerComponent("raindrop", {
         ((cloud_room_pos.x - this.el.getAttribute("position").x) / 2.5 + 0.5);
       ripple_v =
         (cloud_room_pos.z - this.el.getAttribute("position").z) / 2.0 + 0.5;
+      synth3.triggerAttackRelease(ball_scale[Math.floor(ripple_u * ball_scale.length)], "0.5"); // remove dupliate     
+      
     }
   },
 });

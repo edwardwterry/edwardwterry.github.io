@@ -192,10 +192,10 @@ $(document).ready(function () {
 
   ball_seq = new Tone.Sequence(
     function (time, note) {
-      synth.triggerAttackRelease(note, "8n", time);
+      synth.triggerAttackRelease(note, "16n", time);
     },
     ball_notes,
-    "2n"
+    "8n"
   ).start(0);
   ball_seq.loop = true;
   // ball_seq.humanize = true;
@@ -372,6 +372,15 @@ AFRAME.registerComponent("raycaster-listen", {
         }            
       }
       ready_to_add_hit = false;
+    }
+
+    if (spacebar){
+      var globes = document.querySelectorAll("[globe]");
+      for (var i = 0; i < globes.length; i++) {
+        if (i == intersection.object.el.id) {
+          globes[i].components.globe.wind_up();
+        }
+      }      
     }
 
     // oscPort.send({
@@ -562,4 +571,29 @@ AFRAME.registerComponent("fan", {
   increase: function () {
     this.data.omega.y += 0.03;
   },
+});
+
+AFRAME.registerComponent("globe", {
+  schema: {
+    omega: { type: "vec3", default: { x: 0, y: 0.0, z: 0 } },
+  },
+  multiple: true,
+  init: function () {
+    this.el.setAttribute("rotation", { x: 0, y: 0, z: 0 });
+  },
+  tick: function (t, dt) {
+    let rot = this.el.getAttribute("rotation");
+    let k = 0.000003;
+    let c = 0.99;
+    let fx = spacebar ? 0 : -k * rot.x;
+    this.data.omega.x += fx * dt;
+    this.data.omega.x *= c;
+    this.el.setAttribute("rotation", { x: rot.x + this.data.omega.x * dt, y: rot.y + this.data.omega.y * dt, z: 0 });
+    console.log(rot.x);
+  },
+  wind_up: function () {
+    console.log('winding up');
+    let rot = this.el.getAttribute("rotation");
+    this.el.setAttribute("rotation", { x: rot.x + 0.5, y: rot.y, z: 0 });
+  },  
 });

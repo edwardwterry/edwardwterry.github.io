@@ -107,7 +107,13 @@
                 >
       </a-entity>    
 
-      <a-entity id="mountain"
+      <a-sphere globe
+                raycaster-listen
+                src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_atmos_4096.jpg"
+                position="-8 0.7 0"
+      ></a-sphere>
+
+      <!-- <a-entity id="mountain"
                 class="collidable"
                 obj-model="obj: #mountain;"
                 material="side: double; metalness:0.7; wireframe: false; color: #BBB"
@@ -124,7 +130,7 @@
 
           </a-entity>
         </a-entity>
-      </a-entity>        
+      </a-entity>         -->
 
       <a-entity id="main-wall"
                 material="side: double"

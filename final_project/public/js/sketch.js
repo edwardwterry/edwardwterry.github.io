@@ -28,7 +28,9 @@ let ball_scale;
 
 let forest_uv = [];
 let raindrop_uv = [];
-let synth3;
+let synth3, synth2, synth4;
+let synthOptions;
+let lfo;
 
 var oscPort = new osc.WebSocketPort({
   url: "ws://localhost:3000", // URL to your Web Socket server. // TODO change from localhost?
@@ -168,10 +170,11 @@ $(document).ready(function () {
   let spb = 1 / bps;
   spm = spb * 4.0;  
   const synthOptions = {
+    frequency: 100,
     attackNoise: 1,
     dampening: 6000,
     resonance: 0.7,
-    volume: -10,
+    volume: -10.0,
   };
 
   ball_scale = ["C3", "D3", "Eb3", "F3", "G3", "Ab3", "Bb3", "C4"];
@@ -184,15 +187,44 @@ $(document).ready(function () {
   }
   // forest_notes = ball_notes;
   const synth = new Tone.PolySynth(synthOptions);
-  const synth2 = new Tone.PolySynth(synthOptions);
   synth3 = new Tone.PolySynth(synthOptions);
-  synth.toMaster();
+  const delay = new Tone.FeedbackDelay('8n', '0.1');
+
+  // var lfo = new Tone.LFO("2:0:0", 400, 800 ).start();
+
+  synth2 = new Tone.DuoSynth(synthOptions);
+  // lfo.connect(synth2.frequency);
   synth2.toMaster();
-  synth3.toMaster();
+  synth.toMaster();
+  // synth3.toMaster();
+
+  let feedbackDelay = new Tone.FeedbackDelay("16n", 0.8).toMaster();
+  feedbackDelay.wet.value = 0.0;
+  
+  let vol = new Tone.Volume(-15).connect(feedbackDelay);
+
+  synth4 = new Tone.MetalSynth({
+    frequency: 100,
+    harmonicity: 1.5,
+    modulationIndex: 20,
+    resonance: 2000,
+    octaves: 1.5,  }).connect(vol);
+
+  // 20Hz Sine LFO ~~ Don't forget to start your LFO
+  let lfo4 = new Tone.LFO({
+      type: "sine",
+      min: 20,
+      max: 1000,
+      phase: 1,
+      frequency: .05,
+      amplitude: 1,
+    }).start();
+  
+  lfo4.connect(synth4.frequency);  
 
   ball_seq = new Tone.Sequence(
     function (time, note) {
-      synth.triggerAttackRelease(note, "16n", time);
+      // synth.triggerAttackRelease(note, "16n", time);
     },
     ball_notes,
     "8n"
@@ -204,7 +236,7 @@ $(document).ready(function () {
     function (time, note) {
       // console.log('in forets seq', forest_notes);
       // console.log('in forets seq', time, note);
-      synth2.triggerAttackRelease(note, "8n", time);
+      // synth2.triggerAttackRelease(note, "8n", time);
     },
     forest_notes,
     "1n"
@@ -357,18 +389,19 @@ AFRAME.registerComponent("raycaster-listen", {
         let scene = document.querySelector("a-scene");
         scene.appendChild(firefly);
         forest_uv.push([u, v]);
+
         // var fireflies = document.querySelectorAll("[firefly]");
         for (var i = 0; i < forest_uv.length; i++) {
-          console.log(forest_uv[i][0] * spm,
-            ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]);
-            forest_seq.add(
-              forest_uv[i][0] * spm,
-              ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
-            );
-            forest_seq.at(
-            forest_uv[i][0] * spm / 2.0,
-            ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
-          );
+          // console.log(forest_uv[i][0] * spm,
+          //   ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]);
+          //   forest_seq.add(
+          //     forest_uv[i][0] * spm,
+          //     ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
+          //   );
+          //   forest_seq.at(
+          //   forest_uv[i][0] * spm / 2.0,
+          //   ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
+          // );
         }            
       }
       ready_to_add_hit = false;
@@ -464,7 +497,7 @@ AFRAME.registerComponent("bubble-shooter", {
 
 AFRAME.registerComponent("raindrop", {
   schema: {
-    acc: { type: "vec3", default: { x: 0, y: -0.000001, z: 0 } },
+    acc: { type: "vec3", default: { x: 0, y: -0.000004, z: 0 } },
     vel: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
   },
   multiple: true,
@@ -498,7 +531,7 @@ AFRAME.registerComponent("raindrop", {
         ((cloud_room_pos.x - this.el.getAttribute("position").x) / 2.5 + 0.5);
       ripple_v =
         (cloud_room_pos.z - this.el.getAttribute("position").z) / 2.0 + 0.5;
-      synth3.triggerAttackRelease(ball_scale[Math.floor(ripple_u * ball_scale.length)], "0.5"); // remove dupliate     
+      synth4.triggerAttackRelease(ball_scale[Math.floor(ripple_u * ball_scale.length)], 0.5, 1.0); // remove dupliate     
       
     }
   },
@@ -544,6 +577,14 @@ AFRAME.registerComponent("firefly", {
     this.material = new THREE.MeshBasicMaterial({ color: 0xc7c34d });
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     el.setObject3D("mesh", this.mesh);
+    // var lfo_local = lfo;
+    // lfo_local.
+    // let s2 = new Tone.DuoSynth(synthOptions);
+    // lfo_local.connect(s2.frequency);
+
+    // s2.toMaster();    
+    // synth4.triggerAttackRelease(ball_scale[Math.floor(Math.random()*ball_scale.length)], 5); // remove dupliate     
+    synth4.triggerAttackRelease("A3", 5); // remove dupliate     
   },
 
   tick: function (t, dt) {
@@ -575,7 +616,7 @@ AFRAME.registerComponent("fan", {
 
 AFRAME.registerComponent("globe", {
   schema: {
-    omega: { type: "vec3", default: { x: 0, y: 0.0, z: 0 } },
+    omega: { type: "vec3", default: { x: 0, y: 0.02, z: 0 } },
   },
   multiple: true,
   init: function () {
@@ -587,13 +628,13 @@ AFRAME.registerComponent("globe", {
     let c = 0.99;
     let fx = spacebar ? 0 : -k * rot.x;
     this.data.omega.x += fx * dt;
-    this.data.omega.x *= c;
+    this.data.omega.x *= c; // add damping
     this.el.setAttribute("rotation", { x: rot.x + this.data.omega.x * dt, y: rot.y + this.data.omega.y * dt, z: 0 });
-    console.log(rot.x);
+    // console.log(rot.x);
   },
   wind_up: function () {
-    console.log('winding up');
+    // console.log('winding up');
     let rot = this.el.getAttribute("rotation");
-    this.el.setAttribute("rotation", { x: rot.x + 0.5, y: rot.y, z: 0 });
+    this.el.setAttribute("rotation", { x: Math.max(rot.x - 0.5, -20), y: rot.y, z: 0 });
   },  
 });

@@ -29,6 +29,8 @@ let ball_scale;
 let forest_uv = [];
 let raindrop_uv = [];
 let synth3;
+let autoFilter, oscillator;
+let tom;
 
 var oscPort = new osc.WebSocketPort({
   url: "ws://localhost:3000", // URL to your Web Socket server. // TODO change from localhost?
@@ -185,14 +187,25 @@ $(document).ready(function () {
   // forest_notes = ball_notes;
   const synth = new Tone.PolySynth(synthOptions);
   const synth2 = new Tone.PolySynth(synthOptions);
-  synth3 = new Tone.PolySynth(synthOptions);
+
+  //create an autofilter and start it's LFO
+  autoFilter = new Tone.AutoFilter("4n").toMaster().start();
+  //route an oscillator through the filter and start it
+  // oscillator = new Tone.Oscillator().connect(autoFilter).start();  
+  // oscillator = new Tone.PolySynth(synthOptions);
+
+  var vibrato = new Tone.Vibrato(2, 1).toMaster();
+  tom = new Tone.MembraneSynth({
+    "octaves" : 4,
+    "pitchDecay" : 1
+  }).connect(vibrato);  
   synth.toMaster();
   synth2.toMaster();
-  synth3.toMaster();
+  // synth3.toMaster();
 
   ball_seq = new Tone.Sequence(
     function (time, note) {
-      synth.triggerAttackRelease(note, "16n", time);
+      // synth2.triggerAttackRelease(note, "16n", time);
     },
     ball_notes,
     "8n"
@@ -253,7 +266,7 @@ $(document).ready(function () {
         raindrops[i].remove();
       }
     }
-  }, 100);
+  }, 20);
 });
 
 AFRAME.registerComponent("canvas-updater", {
@@ -498,7 +511,7 @@ AFRAME.registerComponent("raindrop", {
         ((cloud_room_pos.x - this.el.getAttribute("position").x) / 2.5 + 0.5);
       ripple_v =
         (cloud_room_pos.z - this.el.getAttribute("position").z) / 2.0 + 0.5;
-      synth3.triggerAttackRelease(ball_scale[Math.floor(ripple_u * ball_scale.length)], "0.5"); // remove dupliate     
+        tom.triggerAttackRelease(ball_scale[Math.floor(ripple_u * ball_scale.length)], "4"); // remove dupliate     
       
     }
   },

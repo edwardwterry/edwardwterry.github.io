@@ -42,7 +42,7 @@ var oscPort = new osc.WebSocketPort({
 oscPort.open();
 $(document).ready(function () {
   listener = new THREE.AudioListener();
-  document.querySelector("[camera]").object3D.add( listener );
+  document.querySelector("[camera]").object3D.add(listener);
   // Tone.setContext(listener.context);
   const sketch = (p) => {
     let width = 512;
@@ -53,7 +53,7 @@ $(document).ready(function () {
     let current; // = new float[cols][rows];
     let previous; // = new float[cols][rows];
 
-    let dampening = 0.99;
+    let dampening = 0.995;
 
     p.setup = () => {
       p.pixelDensity(1);
@@ -144,12 +144,12 @@ $(document).ready(function () {
     ball.setAttribute("ball", "");
     ball.setAttribute("position", { x: 0, y: 0, z: 0 });
     ball.setAttribute("material", "color: #6df4ff; metalness: 0.8");
-    let sound = document.createElement("a-sound");
-    // sound.setAttribute("src", "#sample");
-    sound.setAttribute("autoplay", "true");
-    sound.setAttribute("loop", "true");
-    sound.setAttribute("volume", 0.2);
-    ball.appendChild(sound);
+    // let sound = document.createElement("a-sound");
+    // // sound.setAttribute("src", "#sample");
+    // sound.setAttribute("autoplay", "true");
+    // sound.setAttribute("loop", "true");
+    // sound.setAttribute("volume", 0.2);
+    // ball.appendChild(sound);
     cyl.appendChild(ball);
     cyl.appendChild(fan);
     entity.appendChild(cyl);
@@ -179,7 +179,7 @@ $(document).ready(function () {
 
   let bps = bpm / 60.0;
   let spb = 1 / bps;
-  spm = spb * 4.0;  
+  spm = spb * 4.0;
   const synthOptions = {
     attackNoise: 1,
     dampening: 6000,
@@ -190,8 +190,8 @@ $(document).ready(function () {
   ball_scale = ["C3", "D3", "Eb3", "F3", "G3", "Ab3", "Bb3", "C4"];
   ball_scale_fract = new Array(num_cylinders);
   ball_notes = [];
-  forest_notes = [''];
-  for (let i = 0; i < ball_scale_fract.length; i++){
+  forest_notes = [""];
+  for (let i = 0; i < ball_scale_fract.length; i++) {
     ball_scale_fract[i] = 0;
     ball_notes[i] = ball_scale[ball_scale_fract[i]];
   }
@@ -202,17 +202,17 @@ $(document).ready(function () {
   //create an autofilter and start it's LFO
   autoFilter = new Tone.AutoFilter("4n").toMaster().start();
   //route an oscillator through the filter and start it
-  // oscillator = new Tone.Oscillator().connect(autoFilter).start();  
+  // oscillator = new Tone.Oscillator().connect(autoFilter).start();
   // oscillator = new Tone.PolySynth(synthOptions);
 
   var vibrato = new Tone.Vibrato(2, 1).toMaster();
   var freeverb = new Tone.Freeverb().toMaster();
   freeverb.dampening.value = 1000;
-  var pingPong = new Tone.FeedbackDelay("16n", 0.4).connect(freeverb);  
+  var pingPong = new Tone.FeedbackDelay("16n", 0.4).connect(freeverb);
   tom = new Tone.MembraneSynth({
-    "octaves" : 3,
-    "pitchDecay" : 3
-  }).connect(pingPong);  
+    octaves: 3,
+    pitchDecay: 3,
+  }).connect(pingPong);
   synth.toMaster();
   synth2.toMaster();
   // synth3.toMaster();
@@ -236,7 +236,7 @@ $(document).ready(function () {
     forest_notes,
     "1n"
   ).start(0);
-  forest_seq.loop = true;  
+  forest_seq.loop = true;
   forest_seq.humanize = true;
 
   Tone.Transport.start();
@@ -245,7 +245,7 @@ $(document).ready(function () {
     let index = Math.floor(fract * scale.length);
     return scale[index];
   }
-  
+
   function create_note(pt) {
     let fract = get_fraction_of_canvas(pt);
     seq.add(
@@ -266,7 +266,16 @@ $(document).ready(function () {
     let spb = 1 / bps;
     let spm = spb * 4.0;
     return fract * spm;
-  }  
+  }
+
+  let ripple_notes = [
+    "ripple_F3",
+    "ripple_Bb3",
+    "ripple_C4",
+    "ripple_D4",
+    "ripple_Eb4",
+    "ripple_Ab4",
+  ];
 
   // periodically check for raindrops falling through the floor
   setInterval(() => {
@@ -275,15 +284,19 @@ $(document).ready(function () {
     let raindrops = document.querySelectorAll("[raindrop]");
     for (let i = 0; i < raindrops.length; i++) {
       if (
-        raindrops[i].object3D.position.y < ripple_surface.object3D.position.y + 0.1 && !raindrops[i].struck
+        raindrops[i].object3D.position.y <
+          ripple_surface.object3D.position.y + 0.1 &&
+        !raindrops[i].struck
       ) {
-        console.log('creating sound');
         let sound = document.createElement("a-entity");
-        sound.setAttribute("sound", "src: #ripple_F3; autoplay: true");
+        let note =
+          ripple_notes[Math.floor(Math.random() * ripple_notes.length)];
+        sound.setAttribute("sound", "src: #" + note + "; autoplay: true");
         raindrops[i].appendChild(sound);
         raindrops[i].struck = true;
       }
-      if (document.querySelector("a-scene").time - raindrops[i].t_struck > 5){
+      if (raindrops[i].object3D.position.y < -200) {
+        // HACK to help deleting object
         raindrops[i].remove();
       }
     }
@@ -357,7 +370,7 @@ AFRAME.registerComponent("raycaster-listen", {
         let pt = intersection.point;
         // console.log(this.el.object3D.worldToLocal(intersection.object.parent.parent.position));
         let raindrop = document.createElement("a-entity");
-        raindrop.setAttribute("raindrop", "");
+        raindrop.setAttribute("raindrop", "struck: false;");
         raindrop.setAttribute("position", pt);
         raindrop.setAttribute("material", "opacity: 0.5");
 
@@ -375,7 +388,9 @@ AFRAME.registerComponent("raycaster-listen", {
           if (i == intersection.object.el.id) {
             fans[i].components.fan.increase();
             balls[i].components.ball.raise();
-            ball_scale_fract[i] = Math.floor(balls[i].object3D.position.y * ball_scale.length);
+            ball_scale_fract[i] = Math.floor(
+              balls[i].object3D.position.y * ball_scale.length
+            );
             ball_seq.at(i, ball_scale[ball_scale_fract[i]]);
           }
         }
@@ -383,7 +398,7 @@ AFRAME.registerComponent("raycaster-listen", {
 
       if (intersection.object.el.id == "forest-wall") {
         let pt = intersection.point;
-    
+
         // console.log(pt);
         let firefly = document.createElement("a-entity");
         firefly.setAttribute("firefly", "");
@@ -393,28 +408,30 @@ AFRAME.registerComponent("raycaster-listen", {
         forest_uv.push([u, v]);
         // var fireflies = document.querySelectorAll("[firefly]");
         for (var i = 0; i < forest_uv.length; i++) {
-          console.log(forest_uv[i][0] * spm,
-            ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]);
-            forest_seq.add(
-              forest_uv[i][0] * spm,
-              ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
-            );
-            forest_seq.at(
-            forest_uv[i][0] * spm / 2.0,
+          console.log(
+            forest_uv[i][0] * spm,
             ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
           );
-        }            
+          forest_seq.add(
+            forest_uv[i][0] * spm,
+            ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
+          );
+          forest_seq.at(
+            (forest_uv[i][0] * spm) / 2.0,
+            ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
+          );
+        }
       }
       ready_to_add_hit = false;
     }
 
-    if (spacebar){
+    if (spacebar) {
       var globes = document.querySelectorAll("[globe]");
       for (var i = 0; i < globes.length; i++) {
         if (i == intersection.object.el.id) {
           globes[i].components.globe.wind_up();
         }
-      }      
+      }
     }
 
     // oscPort.send({
@@ -500,8 +517,7 @@ AFRAME.registerComponent("raindrop", {
   schema: {
     acc: { type: "vec3", default: { x: 0, y: -0.000001, z: 0 } },
     vel: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
-    struck: { type: "bool", default: false},
-    t_struck: { type: "float"},
+    struck: { type: "bool", default: false },
   },
   multiple: true,
 
@@ -511,6 +527,7 @@ AFRAME.registerComponent("raindrop", {
     this.material = new THREE.MeshBasicMaterial({ color: 0x6df4ff });
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     el.setObject3D("mesh", this.mesh);
+    this.data.struck = false;
   },
 
   tick: function (t, dt) {
@@ -535,12 +552,6 @@ AFRAME.registerComponent("raindrop", {
       ripple_v =
         (cloud_room_pos.z - this.el.getAttribute("position").z) / 2.0 + 0.5;
     }
-    if (
-      this.el.getAttribute("position").y < ripple_surface.object3D.position.y && !this.data.struck
-    ) {
-        this.data.t_struck = t;
-    }
-
   },
 });
 
@@ -554,7 +565,7 @@ AFRAME.registerComponent("ball", {
     this.mesh = new THREE.Mesh(this.geometry, this.material);
 
     // create the PositionalAudio object (passing in the listener)
-    var sound = new THREE.PositionalAudio( listener );
+    // var sound = new THREE.PositionalAudio( listener );
 
     // // load a sound and set it as the PositionalAudio object's buffer
     // // var audioLoader = new THREE.AudioLoader();
@@ -564,7 +575,7 @@ AFRAME.registerComponent("ball", {
     // //   sound.setRefDistance( 1 );
     // //   sound.play();
     // // });
-    // // console.log(cam_comp);    
+    // // console.log(cam_comp);
     // // var sound1 = new THREE.PositionalAudio( listener );
     // // console.log(Tone);
     // // console.log(Tone.context);
@@ -574,7 +585,6 @@ AFRAME.registerComponent("ball", {
     // // Tone._context = sound.context;
     // // sound.context = Tone.context;
 
-
     // var sound3 = new THREE.PositionalAudio( listener );
     // var oscillator = listener.context.createOscillator();
     // oscillator.type = 'sine';
@@ -582,8 +592,8 @@ AFRAME.registerComponent("ball", {
     // oscillator.start( 0 );
     // // sound3.setNodeSource( oscillator );
     // sound3.setRefDistance( 0.1 );
-    // sound3.setVolume( 0.05 );    
-    var oscillator1 = new Tone.Oscillator(440, "sine");
+    // sound3.setVolume( 0.05 );
+    // var oscillator1 = new Tone.Oscillator(440, "sine");
     // // console.log(oscillator1);
     // console.log(Tone.context);
     // Tone.setContext(null);
@@ -594,7 +604,7 @@ AFRAME.registerComponent("ball", {
     // // sound.context = listener.context;
     // // console.log(sound.context);
     // sound.setNodeSource (oscillator1);
-    // this.mesh.add( sound );    
+    // this.mesh.add( sound );
     el.setObject3D("mesh", this.mesh);
   },
 
@@ -671,12 +681,16 @@ AFRAME.registerComponent("globe", {
     let fx = spacebar ? 0 : -k * rot.x;
     this.data.omega.x += fx * dt;
     this.data.omega.x *= c;
-    this.el.setAttribute("rotation", { x: rot.x + this.data.omega.x * dt, y: rot.y + this.data.omega.y * dt, z: 0 });
+    this.el.setAttribute("rotation", {
+      x: rot.x + this.data.omega.x * dt,
+      y: rot.y + this.data.omega.y * dt,
+      z: 0,
+    });
     // console.log(rot.x);
   },
   wind_up: function () {
-    console.log('winding up');
+    console.log("winding up");
     let rot = this.el.getAttribute("rotation");
     this.el.setAttribute("rotation", { x: rot.x + 0.5, y: rot.y, z: 0 });
-  },  
+  },
 });

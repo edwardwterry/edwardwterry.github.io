@@ -195,10 +195,11 @@ $(document).ready(function () {
   // oscillator = new Tone.PolySynth(synthOptions);
 
   var vibrato = new Tone.Vibrato(2, 1).toMaster();
+  var pingPong = new Tone.FeedbackDelay("16n", 0.4).toMaster();
   tom = new Tone.MembraneSynth({
-    "octaves" : 4,
-    "pitchDecay" : 1
-  }).connect(vibrato);  
+    "octaves" : 3,
+    "pitchDecay" : 3
+  }).connect(pingPong);  
   synth.toMaster();
   synth2.toMaster();
   // synth3.toMaster();
@@ -479,6 +480,7 @@ AFRAME.registerComponent("raindrop", {
   schema: {
     acc: { type: "vec3", default: { x: 0, y: -0.000001, z: 0 } },
     vel: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
+    sounded: { type: "bool", default: false},
   },
   multiple: true,
 
@@ -511,9 +513,14 @@ AFRAME.registerComponent("raindrop", {
         ((cloud_room_pos.x - this.el.getAttribute("position").x) / 2.5 + 0.5);
       ripple_v =
         (cloud_room_pos.z - this.el.getAttribute("position").z) / 2.0 + 0.5;
-        tom.triggerAttackRelease(ball_scale[Math.floor(ripple_u * ball_scale.length)], "4"); // remove dupliate     
-      
     }
+    if (
+      this.el.getAttribute("position").y < ripple_surface.object3D.position.y + 0.3 && !this.data.sounded
+    ) {
+        tom.triggerAttackRelease(ball_scale[Math.floor(ripple_u * ball_scale.length)], "3"); // remove dupliate     
+        this.data.sounded = true;
+    }
+
   },
 });
 

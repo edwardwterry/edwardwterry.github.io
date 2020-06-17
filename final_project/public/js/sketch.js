@@ -33,6 +33,9 @@ let autoFilter, oscillator;
 let tom;
 
 let listener;
+let sample_notes;
+
+let firefly_speeds = ["slow", "med", "fast"];
 
 var oscPort = new osc.WebSocketPort({
   url: "ws://localhost:3000", // URL to your Web Socket server. // TODO change from localhost?
@@ -113,9 +116,12 @@ $(document).ready(function () {
   var HTMLcanvas = document.getElementById("forest-canvas");
   var HTMLcontext = HTMLcanvas.getContext("2d");
   let img = document.getElementById("forest");
+  console.log(img);
   HTMLcontext.drawImage(img, 0, 0);
 
   let sceneElement = document.querySelector("a-scene");
+
+  sample_notes = ["F3", "Bb3", "C4", "D4", "Eb4", "Ab4"];
 
   let num_cylinders = 8;
   let bubble_shooter_assy = document.createElement("a-entity");
@@ -268,15 +274,6 @@ $(document).ready(function () {
     return fract * spm;
   }
 
-  let ripple_notes = [
-    "ripple_F3",
-    "ripple_Bb3",
-    "ripple_C4",
-    "ripple_D4",
-    "ripple_Eb4",
-    "ripple_Ab4",
-  ];
-
   // periodically check for raindrops falling through the floor
   setInterval(() => {
     let ripple_surface = document.querySelector("#ripple-surface");
@@ -290,8 +287,11 @@ $(document).ready(function () {
       ) {
         let sound = document.createElement("a-entity");
         let note =
-          ripple_notes[Math.floor(Math.random() * ripple_notes.length)];
-        sound.setAttribute("sound", "src: #" + note + "; autoplay: true");
+          sample_notes[Math.floor(Math.random() * sample_notes.length)];
+        sound.setAttribute(
+          "sound",
+          "src: #ripple_" + note + "; autoplay: true"
+        );
         raindrops[i].appendChild(sound);
         raindrops[i].struck = true;
       }
@@ -404,23 +404,32 @@ AFRAME.registerComponent("raycaster-listen", {
         firefly.setAttribute("firefly", "");
         firefly.setAttribute("position", pt);
         let scene = document.querySelector("a-scene");
+
+        let sound = document.createElement("a-entity");
+        let note = sample_notes[Math.floor(Math.random() * sample_notes.length)];
+        let speed = firefly_speeds[Math.floor(Math.random() * firefly_speeds.length)];
+        sound.setAttribute(
+          "sound",
+          "src: #forest_" + note + "_" + speed + "; autoplay: true; loop: true;"
+        );
+        firefly.appendChild(sound);
         scene.appendChild(firefly);
         forest_uv.push([u, v]);
         // var fireflies = document.querySelectorAll("[firefly]");
-        for (var i = 0; i < forest_uv.length; i++) {
-          console.log(
-            forest_uv[i][0] * spm,
-            ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
-          );
-          forest_seq.add(
-            forest_uv[i][0] * spm,
-            ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
-          );
-          forest_seq.at(
-            (forest_uv[i][0] * spm) / 2.0,
-            ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
-          );
-        }
+        // for (var i = 0; i < forest_uv.length; i++) {
+        //   console.log(
+        //     forest_uv[i][0] * spm,
+        //     ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
+        //   );
+        //   forest_seq.add(
+        //     forest_uv[i][0] * spm,
+        //     ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
+        //   );
+        //   forest_seq.at(
+        //     (forest_uv[i][0] * spm) / 2.0,
+        //     ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
+        //   );
+        // }
       }
       ready_to_add_hit = false;
     }

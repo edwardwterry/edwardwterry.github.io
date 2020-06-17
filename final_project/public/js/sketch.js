@@ -279,7 +279,7 @@ $(document).ready(function () {
       ) {
         console.log('creating sound');
         let sound = document.createElement("a-entity");
-        sound.setAttribute("sound", "src: #sample; autoplay: true");
+        sound.setAttribute("sound", "src: #ripple_F3; autoplay: true");
         raindrops[i].appendChild(sound);
         raindrops[i].struck = true;
       }

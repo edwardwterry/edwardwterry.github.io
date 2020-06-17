@@ -6,13 +6,11 @@
       src="http://code.jquery.com/jquery-1.10.0.min.js"
     ></script>
     <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/osc@2.4.1/dist/osc-browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script>
 
     <script src="lib/p5.js"></script>
-    <script src='lib/threex.laserbeam.js'></script>
-    <script src='lib/threex.lasercooked.js'></script>
     <script src="js/sketch.js"></script>
     <!-- <style> .a-canvas { display: none; } </style> -->
   </head>
@@ -20,8 +18,9 @@
     <!-- <canvas id="custom-canvas" width='2048' height='512' crossorigin="anonymous"></canvas> -->
     <a-scene shadow antialiasing>
       <!-- load assets -->
-      <a-assets>
+      <a-assets timeout="10000">
         <canvas id="forest-canvas" width='2048' height='512' crossorigin="anonymous"></canvas>
+        <audio id="sample" src="assets/sample_small.mp3" preload="auto"></audio>
         <canvas id="ripple-canvas" width='512' height='512' crossorigin="anonymous"></canvas>
         <a-asset-item
           id="cloud-obj"
@@ -38,26 +37,10 @@
         <a-asset-item
           id="fan"
           src="assets/blender/vent_fan.mtl"
-        ></a-asset-item>    
-        <a-asset-item
-          id="mountains"
-          src="assets/blender/mountains.obj"
-        ></a-asset-item>
-        <a-asset-item
-          id="mountains"
-          src="assets/blender/mountains.mtl"
-        ></a-asset-item>    
-        
-        <a-asset-item
-          id="mountain"
-          src="assets/blender/mount.obj"
-        ></a-asset-item>
-        <a-asset-item
-          id="mountain"
-          src="assets/blender/mount.mtl"
         ></a-asset-item>          
         <img id="forest" src="assets/forest_small_trim.jpg">
         <img id="ripples" src="assets/ripples.png">
+        <!-- <audio id="sample" src="assets/sample.mp3"></audio> -->
       </a-assets>
 
     <!-- shell -->

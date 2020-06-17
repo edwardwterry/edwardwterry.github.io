@@ -43,7 +43,7 @@ oscPort.open();
 $(document).ready(function () {
   listener = new THREE.AudioListener();
   document.querySelector("[camera]").object3D.add( listener );
-
+  // Tone.setContext(listener.context);
   const sketch = (p) => {
     let width = 512;
     let height = 512;
@@ -144,6 +144,12 @@ $(document).ready(function () {
     ball.setAttribute("ball", "");
     ball.setAttribute("position", { x: 0, y: 0, z: 0 });
     ball.setAttribute("material", "color: #6df4ff; metalness: 0.8");
+    let sound = document.createElement("a-sound");
+    // sound.setAttribute("src", "#sample");
+    sound.setAttribute("autoplay", "true");
+    sound.setAttribute("loop", "true");
+    sound.setAttribute("volume", 0.2);
+    ball.appendChild(sound);
     cyl.appendChild(ball);
     cyl.appendChild(fan);
     entity.appendChild(cyl);
@@ -269,8 +275,15 @@ $(document).ready(function () {
     let raindrops = document.querySelectorAll("[raindrop]");
     for (let i = 0; i < raindrops.length; i++) {
       if (
-        raindrops[i].object3D.position.y < ripple_surface.object3D.position.y
+        raindrops[i].object3D.position.y < ripple_surface.object3D.position.y + 0.1 && !raindrops[i].struck
       ) {
+        console.log('creating sound');
+        let sound = document.createElement("a-entity");
+        sound.setAttribute("sound", "src: #sample; autoplay: true");
+        raindrops[i].appendChild(sound);
+        raindrops[i].struck = true;
+      }
+      if (document.querySelector("a-scene").time - raindrops[i].t_struck > 5){
         raindrops[i].remove();
       }
     }
@@ -487,7 +500,8 @@ AFRAME.registerComponent("raindrop", {
   schema: {
     acc: { type: "vec3", default: { x: 0, y: -0.000001, z: 0 } },
     vel: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
-    sounded: { type: "bool", default: false},
+    struck: { type: "bool", default: false},
+    t_struck: { type: "float"},
   },
   multiple: true,
 
@@ -522,10 +536,9 @@ AFRAME.registerComponent("raindrop", {
         (cloud_room_pos.z - this.el.getAttribute("position").z) / 2.0 + 0.5;
     }
     if (
-      this.el.getAttribute("position").y < ripple_surface.object3D.position.y + 0.3 && !this.data.sounded
+      this.el.getAttribute("position").y < ripple_surface.object3D.position.y && !this.data.struck
     ) {
-        tom.triggerAttackRelease(ball_scale[Math.floor(ripple_u * ball_scale.length)], "3"); // remove dupliate     
-        this.data.sounded = true;
+        this.data.t_struck = t;
     }
 
   },
@@ -543,22 +556,45 @@ AFRAME.registerComponent("ball", {
     // create the PositionalAudio object (passing in the listener)
     var sound = new THREE.PositionalAudio( listener );
 
-    // load a sound and set it as the PositionalAudio object's buffer
-    var audioLoader = new THREE.AudioLoader();
-    audioLoader.load( 'assets/sample.mp3', function( buffer ) {
-      sound.setBuffer( buffer );
-      sound.setLoop(true);
-      sound.setRefDistance( 1 );
-      sound.play();
-    });
-    // console.log(cam_comp);    
-    // var sound1 = new THREE.PositionalAudio( listener );
+    // // load a sound and set it as the PositionalAudio object's buffer
+    // // var audioLoader = new THREE.AudioLoader();
+    // // audioLoader.load( 'assets/sample.mp3', function( buffer ) {
+    // //   sound.setBuffer( buffer );
+    // //   // sound.setLoop(true);
+    // //   sound.setRefDistance( 1 );
+    // //   sound.play();
+    // // });
+    // // console.log(cam_comp);    
+    // // var sound1 = new THREE.PositionalAudio( listener );
+    // // console.log(Tone);
+    // // console.log(Tone.context);
+    // // console.log(listener.context);
+    // // console.log(sound.context);
+    // // Tone.setContext(sound.context);
+    // // Tone._context = sound.context;
+    // // sound.context = Tone.context;
+
+
+    // var sound3 = new THREE.PositionalAudio( listener );
+    // var oscillator = listener.context.createOscillator();
+    // oscillator.type = 'sine';
+    // oscillator.frequency.setValueAtTime( 144, sound3.context.currentTime );
+    // oscillator.start( 0 );
+    // // sound3.setNodeSource( oscillator );
+    // sound3.setRefDistance( 0.1 );
+    // sound3.setVolume( 0.05 );    
+    var oscillator1 = new Tone.Oscillator(440, "sine");
+    // // console.log(oscillator1);
     // console.log(Tone.context);
-    // console.log(sound1.context);
-    // Tone.context = sound1.context;
-    // var oscillator1 = new Tone.Oscillator(440, "sine");
-    // sound1.setNodeSource (oscillator1);
-    this.mesh.add( sound );    
+    // Tone.setContext(null);
+    // console.log(Tone.context);
+    // // console.log(sound);
+    // Tone.context = sound.context;
+    // sound.context = Tone.context;
+    // // sound.context = listener.context;
+    // // console.log(sound.context);
+    // sound.setNodeSource (oscillator1);
+    // this.mesh.add( sound );    
     el.setObject3D("mesh", this.mesh);
   },
 

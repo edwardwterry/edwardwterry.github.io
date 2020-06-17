@@ -32,6 +32,8 @@ let synth3;
 let autoFilter, oscillator;
 let tom;
 
+let listener;
+
 var oscPort = new osc.WebSocketPort({
   url: "ws://localhost:3000", // URL to your Web Socket server. // TODO change from localhost?
   metadata: true,
@@ -39,6 +41,9 @@ var oscPort = new osc.WebSocketPort({
 
 oscPort.open();
 $(document).ready(function () {
+  listener = new THREE.AudioListener();
+  document.querySelector("[camera]").object3D.add( listener );
+
   const sketch = (p) => {
     let width = 512;
     let height = 512;
@@ -195,7 +200,9 @@ $(document).ready(function () {
   // oscillator = new Tone.PolySynth(synthOptions);
 
   var vibrato = new Tone.Vibrato(2, 1).toMaster();
-  var pingPong = new Tone.FeedbackDelay("16n", 0.4).toMaster();
+  var freeverb = new Tone.Freeverb().toMaster();
+  freeverb.dampening.value = 1000;
+  var pingPong = new Tone.FeedbackDelay("16n", 0.4).connect(freeverb);  
   tom = new Tone.MembraneSynth({
     "octaves" : 3,
     "pitchDecay" : 3
@@ -532,6 +539,26 @@ AFRAME.registerComponent("ball", {
     this.geometry = new THREE.SphereGeometry(0.15, 16, 16);
     this.material = new THREE.MeshBasicMaterial();
     this.mesh = new THREE.Mesh(this.geometry, this.material);
+
+    // create the PositionalAudio object (passing in the listener)
+    var sound = new THREE.PositionalAudio( listener );
+
+    // load a sound and set it as the PositionalAudio object's buffer
+    var audioLoader = new THREE.AudioLoader();
+    audioLoader.load( 'assets/sample.mp3', function( buffer ) {
+      sound.setBuffer( buffer );
+      sound.setLoop(true);
+      sound.setRefDistance( 1 );
+      sound.play();
+    });
+    // console.log(cam_comp);    
+    // var sound1 = new THREE.PositionalAudio( listener );
+    // console.log(Tone.context);
+    // console.log(sound1.context);
+    // Tone.context = sound1.context;
+    // var oscillator1 = new Tone.Oscillator(440, "sine");
+    // sound1.setNodeSource (oscillator1);
+    this.mesh.add( sound );    
     el.setObject3D("mesh", this.mesh);
   },
 
@@ -609,7 +636,7 @@ AFRAME.registerComponent("globe", {
     this.data.omega.x += fx * dt;
     this.data.omega.x *= c;
     this.el.setAttribute("rotation", { x: rot.x + this.data.omega.x * dt, y: rot.y + this.data.omega.y * dt, z: 0 });
-    console.log(rot.x);
+    // console.log(rot.x);
   },
   wind_up: function () {
     console.log('winding up');

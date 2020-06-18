@@ -79,7 +79,7 @@ $(document).ready(function () {
       // console.log(x_pix, z_pix);
       previous[x_pix][z_pix] = 500;
       // previous[235][301] = 500;
-      p.background(87, 185, 255);
+      p.background(0);
 
       p.loadPixels();
       for (let i = 1; i < cols - 1; i++) {
@@ -141,6 +141,8 @@ $(document).ready(function () {
     cyl.setAttribute("bubble-shooter", "");
     cyl.setAttribute("material", "side: double; opacity: 0.5");
     cyl.setAttribute("position", { x: 1, y: 0.8, z: 0 });
+    let light = document.createElement("a-light");
+
     let fan = document.createElement("a-entity");
     fan.setAttribute("fan", "");
     fan.setAttribute("id", i);
@@ -301,6 +303,15 @@ $(document).ready(function () {
       }
     }
   }, 20);
+
+  // setInterval(() => {
+  //   let fireflies = document.querySelectorAll("[firefly]");
+  //   console.log(fireflies);
+  //   if (fireflies.length > 3){
+
+  //   }
+
+  // }, 500);  
 });
 
 AFRAME.registerComponent("canvas-updater", {

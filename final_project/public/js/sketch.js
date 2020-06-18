@@ -14,6 +14,7 @@ let samplers = {
 let scale_notes = ["F3", "Bb3", "C4", "D4", "Eb4", "Ab4"];
 let firefly_speeds = ["slow", "med", "fast"];
 let ball_scale_fract;
+let drum_sequences = [];
 
 // Interaction
 let spacebar = false;
@@ -176,7 +177,14 @@ $(document).ready(function () {
     cyl.appendChild(fan);
     entity.appendChild(cyl);
     bubble_shooter_assy.appendChild(entity);
+    let drum_sequence = new Tone.Sequence((time, note) => {
+      console.log('in drum seq');
+      samplers['wind'].triggerAttack(note);
+    }, ["A3"], "4n");
+    drum_sequences.push(drum_sequence)
   }
+
+
 
   ////////////////////////////////////////// 
   // TONE.JS
@@ -229,33 +237,62 @@ $(document).ready(function () {
       volume: -20,
     }
   );  
-  samplers['wind'] = new Tone.Sampler(
+  samplers['wind'] = new Tone.MembraneSynth(
     {
-      'F3': "assets/forest_F3_fast.mp3",
-      "G#4": "assets/forest_Ab4_fast.mp3",
-    },
-    {
-      volume: -20,
-    }
+      pitchDecay : 0.05 ,
+      octaves : 10 ,
+      oscillator : {
+        type : 'sine'
+      },
+      envelope : {
+        attack : 0.001 ,
+        decay : 0.4 ,
+        sustain : 0.01 ,
+        release : 1.4 ,
+        attackCurve : 'exponential'
+      }
+    }  
   );  
-  samplers['earth'] = new Tone.Sampler(
-    {
-      'F3': "assets/forest_F3_fast.mp3",
-      "G#4": "assets/forest_Ab4_fast.mp3",
-    },
-    {
-      volume: -20,
+  samplers['earth'] = new Tone.GrainPlayer;
+
+  let buff = new Tone.Buffer('assets/amb_comp.mp3');
+	Tone.Buffer.on('load', function(){
+		// after loading the buffer, create the Tone.GrainPlayer
+		samplers['earth'] = new Tone.GrainPlayer(buff);
+		// we're setting the defaults "by hand" just for the heck of it
+		// the better way to do this is probably when you create the GrainPlayer
+		samplers['earth'].grainSize = 0.15;
+		samplers['earth'].playbackRate = 1;
+		samplers['earth'].loop = true;
+		samplers['earth'].volume = 10;
+		samplers['earth'].detune = 0;
+		samplers['earth'].toMaster();
+  });  
+
+  let loaded = false;
+  setInterval(async () => {
+    if (buff.loaded && !loaded) {
+      samplers['earth'].start();
+      loaded = true;
     }
-  );    
+  }, 2000);  
+
+  // samplers['earth'] = new Tone.Player({
+  //   "url" : "assets/amb_comp.mp3",
+  //   "autostart" : true,
+  // }).toMaster();
+
+  // samplers['earth'] = grainer;
   samplers['forest'].toMaster();
   samplers['water'].toMaster();
+  samplers['wind'].toMaster();
 
   setInterval(() => {
     // update sampler volumes based on distance from room
     if (global_pos){
       for (var key in samplers) {
         let dist = room_centers[key].distanceTo(global_pos);
-        samplers[key].volume.value = Math.min(-0.7*dist*dist, -15);
+        samplers[key].volume.value = Math.min(-0.4*dist*dist, -15);
         // console.log(key, dist, samplers[key].volume.value);
       }
     }
@@ -347,10 +384,11 @@ AFRAME.registerComponent("raycaster-listen", {
           if (i == intersection.object.el.id) {
             fans[i].components.fan.increase();
             balls[i].components.ball.raise();
-            ball_scale_fract[i] = Math.floor(
-              balls[i].object3D.position.y * scale_notes.length
-            );
-            ball_seq.at(i, scale_notes[ball_scale_fract[i]]);
+            // drum_sequences[i].volume.value = balls[i].object3D.position.y - 10;
+            // ball_scale_fract[i] = Math.floor(
+            //   balls[i].object3D.position.y * scale_notes.length
+            // );
+            // ball_seq.at(i, scale_notes[ball_scale_fract[i]]);
           }
         }
       }
@@ -523,7 +561,7 @@ AFRAME.registerComponent("fan", {
 
 AFRAME.registerComponent("globe", {
   schema: {
-    omega: { type: "vec3", default: { x: 0, y: 0.0, z: 0 } },
+    omega: { type: "vec3", default: { x: 0, y: 0.015, z: 0 } },
   },
   multiple: true,
   init: function () {
@@ -531,6 +569,8 @@ AFRAME.registerComponent("globe", {
   },
   tick: function (t, dt) {
     let rot = this.el.getAttribute("rotation");
+    samplers['earth'].detune = rot.x *50;
+    // samplers['earth'].grainSize = rot.x * 0.1;
     let k = 0.000003;
     let c = 0.99;
     let fx = spacebar ? 0 : -k * rot.x;
@@ -545,7 +585,7 @@ AFRAME.registerComponent("globe", {
   wind_up: function () {
     console.log("winding up");
     let rot = this.el.getAttribute("rotation");
-    this.el.setAttribute("rotation", { x: rot.x + 0.5, y: rot.y, z: 0 });
+    this.el.setAttribute("rotation", { x: Math.min(rot.x + 0.5, 40), y: rot.y, z: 0 });
   },
 });
 

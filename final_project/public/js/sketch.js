@@ -255,7 +255,7 @@ $(document).ready(function () {
     if (global_pos){
       for (var key in samplers) {
         let dist = room_centers[key].distanceTo(global_pos);
-        samplers[key].volume.value = Math.min(-0.4*dist*dist, -5);
+        samplers[key].volume.value = Math.min(-0.7*dist*dist, -15);
         // console.log(key, dist, samplers[key].volume.value);
       }
     }

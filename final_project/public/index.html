@@ -6,8 +6,6 @@
       src="http://code.jquery.com/jquery-1.10.0.min.js"
     ></script>
     <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script> -->
-    <script src="https://cdn.jsdelivr.net/npm/osc@2.4.1/dist/osc-browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script>
 
     <script src="lib/p5.js"></script>
@@ -21,31 +19,7 @@
       <a-assets timeout="20000">
         <canvas id="forest-canvas" width='2048' height='512' crossorigin="anonymous"></canvas>
         <canvas id="ripple-canvas" width='512' height='512' crossorigin="anonymous"></canvas>
-        <!-- <audio id="ripple_F3" src="assets/ripple_F3.mp3" preload="auto"></audio> -->
         <img id="forest" src="assets/forest_small_trim.jpg">
-        <!-- <audio id="ripple_D4" src="assets/ripple_D4.mp3" preload="auto"></audio>
-        <audio id="ripple_Eb4" src="assets/ripple_Eb4.mp3" preload="auto"></audio>
-        <audio id="ripple_Ab4" src="assets/ripple_Ab4.mp3" preload="auto"></audio>
-        <audio id="ripple_Bb3" src="assets/ripple_Bb3.mp3" preload="auto"></audio>
-        <audio id="ripple_C4" src="assets/ripple_C4.mp3" preload="auto"></audio>
-        <audio id="forest_F3_fast" src="assets/forest_F3_fast.mp3" preload="auto"></audio>
-        <audio id="forest_D4_fast" src="assets/forest_D4_fast.mp3" preload="auto"></audio>
-        <audio id="forest_Eb4_fast" src="assets/forest_Eb4_fast.mp3" preload="auto"></audio>
-        <audio id="forest_Ab4_fast" src="assets/forest_Ab4_fast.mp3" preload="auto"></audio>
-        <audio id="forest_Bb3_fast" src="assets/forest_Bb3_fast.mp3" preload="auto"></audio>
-        <audio id="forest_C4_fast" src="assets/forest_C4_fast.mp3" preload="auto"></audio>        
-        <audio id="forest_F3_med" src="assets/forest_F3_med.mp3" preload="auto"></audio>
-        <audio id="forest_D4_med" src="assets/forest_D4_med.mp3" preload="auto"></audio>
-        <audio id="forest_Eb4_med" src="assets/forest_Eb4_med.mp3" preload="auto"></audio>
-        <audio id="forest_Ab4_med" src="assets/forest_Ab4_med.mp3" preload="auto"></audio>
-        <audio id="forest_Bb3_med" src="assets/forest_Bb3_med.mp3" preload="auto"></audio>
-        <audio id="forest_C4_med" src="assets/forest_C4_med.mp3" preload="auto"></audio>     
-        <audio id="forest_F3_slow" src="assets/forest_F3_slow.mp3" preload="auto"></audio>
-        <audio id="forest_D4_slow" src="assets/forest_D4_slow.mp3" preload="auto"></audio>
-        <audio id="forest_Eb4_slow" src="assets/forest_Eb4_slow.mp3" preload="auto"></audio>
-        <audio id="forest_Ab4_slow" src="assets/forest_Ab4_slow.mp3" preload="auto"></audio>
-        <audio id="forest_Bb3_slow" src="assets/forest_Bb3_slow.mp3" preload="auto"></audio>
-        <audio id="forest_C4_slow" src="assets/forest_C4_slow.mp3" preload="auto"></audio>                      -->
         <a-asset-item
           id="cloud-obj"
           src="assets/blender/cloud.obj"
@@ -65,8 +39,8 @@
 
       </a-assets>
 
-    <!-- shell -->
-    <a-entity id="cloud-room" position="0 0 8">
+<!-- CLOUD ROOM -->
+      <a-entity id="cloud-room" position="0 0 8">
       <a-entity
         id="cloud"
         obj-model="obj: #cloud-obj; mtl: #cloud-mtl;"
@@ -86,24 +60,9 @@
       <a-box position="0 0.495 0" depth="2" width="2.5"></a-box>   
     </a-entity>
 
-      <!-- default environment -->
-      <a-entity
-        environment="preset: starry; skyColor: #55a6ff; horizonColor: #f0cacd; shadow: true; lightPosition: 0 13 0; fog: 0.67; groundColor: #5639ac; dressingAmount: 0; grid: none; shadowSize: 2"
-      ></a-entity>
-      <a-text value="Press spacebar\n while hovering\nover the forest" font="kelsonsans" align="right" anchor="center" position="-2.3 1.0 -3.2" rotation="0 28 0" scale="0.5 0.5 0.5"></a-text>
-      <a-text value="Press spacebar\n while hovering\nover the cloud" font="kelsonsans" align="right" anchor="center" position="2.3 1.0 3.2" rotation="0 208 0" scale="0.5 0.5 0.5"></a-text>
-      <a-text value="Press spacebar\n while hovering\nover the fans" font="kelsonsans" align="right" anchor="center" position="3.2 1.0 -2.3" rotation="0 298 0" scale="0.5 0.5 0.5"></a-text>
-      <!-- <a-entity bubble position="0 1 -4"></a-entity> -->
-      <!-- sample spinning brass disc -->
-      <!-- <a-entity
-        id="reflector"
-        position="1 1 0"
-        scale="0.1 0.01 0.1"
-        geometry="primitive: cylinder"
-        material="color: #FFD700; metalness:.8; roughness:0;"
-        animation="property:rotation; dur: 1000; to: 0 0 360; easing: linear; loop: true"
-      >
-      </a-entity> -->
+  
+      
+      <!-- FOREST ROOM -->
       <a-entity id="forest-wall"
                 material="src: #forest-canvas; side: double; metalness:0.0"
                 geometry="primitive: cylinder; height: 2.048; open-ended: true; radius: 2.5;
@@ -113,87 +72,81 @@
                 canvas-updater
                 raycaster-listen
                 >
-      </a-entity>    
+      </a-entity>   
 
+      <!-- WATER ROOM -->
       <a-entity id="water-wall"
                 material="side: double;"
-                geometry="primitive: cylinder; height: 2.048; open-ended: true; radius: 5;
+                geometry="primitive: cylinder; height: 2.5; open-ended: true; radius: 5;
                 thetaStart: 0; thetaLength: 310"
                 position="0 1 8" rotation="0 -155 0"
                 >
       </a-entity>     
       
+      <!-- EARTH ROOM -->
       <a-entity id="earth-wall"
                 material="side: double;"
-                geometry="primitive: cylinder; height: 2.048; open-ended: true; radius: 2.5;
-                thetaStart: 0; thetaLength: 270"
-                position="-5.4 1 0" rotation="0 135 0"
+                geometry="primitive: cylinder; height: 2.5; open-ended: true; radius: 5;
+                thetaStart: 0; thetaLength: 310"
+                position="-8 1 0" rotation="0 115 0"
                 >
       </a-entity>         
 
+      <!-- WIND ROOM -->
       <a-entity id="wind-wall"
                 material="side: double;"
-                geometry="primitive: cylinder; height: 2.048; open-ended: true; radius: 5;
+                geometry="primitive: cylinder; height: 2.5; open-ended: true; radius: 5;
                 thetaStart: 0; thetaLength: 310"
                 position="8 1 0" rotation="0 -65 0"
                 >
-      </a-entity>         
+      </a-entity>    
+      
+      <!-- EARTH ROOM -->
       <a-sphere globe
                 raycaster-listen
                 src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_atmos_4096.jpg"
                 position="-8 0.7 0"
       ></a-sphere>
 
-      <!-- <a-entity id="mountain"
-                class="collidable"
-                obj-model="obj: #mountain;"
-                material="side: double; metalness:0.7; wireframe: false; color: #BBB"
-                position="-8 0.7 0" rotation="0 0 0"
-                scale='1 1 1'
-                raycaster-listen-mountain
-                >
-        <a-entity rotation='-90 0 0'>
-          <a-entity
-          position="0 0 1.5"
-          raycaster="showLine: true; far: 3; interval: 1000; objects: .collidable"
-          line="color: red;"
-          >
-
-          </a-entity>
-        </a-entity>
-      </a-entity>         -->
+<!-- ENVIRONMENT SETUP -->
+      <a-entity
+      environment="preset: starry; skyColor: #55a6ff; horizonColor: #f0cacd; shadow: true; lightPosition: 0 13 0; fog: 0.67; groundColor: #5639ac; dressingAmount: 0; grid: none; shadowSize: 2"
+      ></a-entity>
+      <a-text value="Press spacebar\n while hovering\nover the forest" font="kelsonsans" align="right" anchor="center" position="-2.3 1.0 -3.2" rotation="0 28 0" scale="0.5 0.5 0.5"></a-text>
+      <a-text value="Press spacebar\n while hovering\nover the cloud" font="kelsonsans" align="right" anchor="center" position="2.3 1.0 3.2" rotation="0 208 0" scale="0.5 0.5 0.5"></a-text>
+      <a-text value="Press spacebar\n while hovering\nover the fans" font="kelsonsans" align="right" anchor="center" position="3.2 1.0 -2.3" rotation="0 298 0" scale="0.5 0.5 0.5"></a-text>
 
       <a-entity id="main-wall"
-                material="side: double"
-                geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
-                thetaStart: 15; thetaLength: 60"
-                position="0 1 0" rotation="0 0 0"
-                >
+              material="side: double"
+              geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+              thetaStart: 15; thetaLength: 60"
+              position="0 1 0" rotation="0 0 0"
+              >
       </a-entity>
 
       <a-entity id="main-wall"
-                material="side: double"
-                geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
-                thetaStart: 105; thetaLength: 60"
-                position="0 1 0" rotation="0 0 0"
-                >
+              material="side: double"
+              geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+              thetaStart: 105; thetaLength: 60"
+              position="0 1 0" rotation="0 0 0"
+              >
       </a-entity>      
 
       <a-entity id="main-wall"
-                material="color: #BBB; side: double"
-                geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
-                thetaStart: 195; thetaLength: 60"
-                position="0 1 0" rotation="0 0 0"
-                >
+              material="color: #BBB; side: double"
+              geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+              thetaStart: 195; thetaLength: 60"
+              position="0 1 0" rotation="0 0 0"
+              >
       </a-entity>        
 
       <a-entity id="main-wall"
-                material="side: double"
-                geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
-                thetaStart: 285; thetaLength: 60"
-                position="0 1 0" rotation="0 0 0"
-                >
-      </a-entity>     
+              material="side: double"
+              geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+              thetaStart: 285; thetaLength: 60"
+              position="0 1 0" rotation="0 0 0"
+              >
+      </a-entity>   
       
       <a-entity id="floor"
                 material="side: double; color: #555"
@@ -216,6 +169,7 @@
         position="0 1.5 0"
         wasd-controls="acceleration:40"
         collider-check
+        position-reader
       >
         <a-entity
           cursor="fuse: true; fuseTimeout: 500"

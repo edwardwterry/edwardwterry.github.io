@@ -1,52 +1,42 @@
-let socket;
+// Initialize variables
 
-let spacebar = false;
-let ready_to_add_hit = false;
-let target_canvas;
-let u, v;
-let cloud_intersection;
-
-let bubbles;
-
-let hits = [];
-
-let expiry = 180; //secs
-
-let ripple_u = 0.0;
-let ripple_v = 0.0;
-
-// tone setup
-let synth;
+// Audio
 let ball_seq;
-let forest_seq;
-let ripple_seq;
 let bpm = 72;
 let spm;
 
-let ball_scale_fract;
-let ball_scale;
-
-let forest_uv = [];
-let raindrop_uv = [];
-let synth3;
-let autoFilter, oscillator;
-let tom;
-
-let listener;
-let sample_notes;
-
+let samplers = {  
+  'water': null,
+  'wind': null,
+  'earth': null,
+  'forest': null,
+}
+let scale_notes = ["F3", "Bb3", "C4", "D4", "Eb4", "Ab4"];
 let firefly_speeds = ["slow", "med", "fast"];
+let ball_scale_fract;
 
-var oscPort = new osc.WebSocketPort({
-  url: "ws://localhost:3000", // URL to your Web Socket server. // TODO change from localhost?
-  metadata: true,
-});
+// Interaction
+let spacebar = false;
+let ready_to_add_hit = false;
+let u, v;
+let ripple_u = 0.0;
+let ripple_v = 0.0;
 
-oscPort.open();
+// Layout
+let global_pos;
+let room_centers = {
+  'water': new THREE.Vector3( 0, 0, 8 ),
+  'wind': new THREE.Vector3( 8, 0, 0 ),
+  'earth': new THREE.Vector3( -8, 0, 0 ),
+  'forest': new THREE.Vector3( 0, 0, -5.4 ),
+};
+
 $(document).ready(function () {
-  listener = new THREE.AudioListener();
-  document.querySelector("[camera]").object3D.add(listener);
-  // Tone.setContext(listener.context);
+  let sceneElement = document.querySelector("a-scene");
+
+  ////////////////////////////////////////// 
+  // CLOUD ROOM
+  //////////////////////////////////////////
   const sketch = (p) => {
     let width = 512;
     let height = 512;
@@ -76,9 +66,7 @@ $(document).ready(function () {
       var HTMLcontext = HTMLcanvas.getContext("2d");
       x_pix = Math.floor(ripple_u * width);
       z_pix = Math.floor(ripple_v * height);
-      // console.log(x_pix, z_pix);
       previous[x_pix][z_pix] = 500;
-      // previous[235][301] = 500;
       p.background(0);
 
       p.loadPixels();
@@ -113,16 +101,50 @@ $(document).ready(function () {
 
   myp5 = new p5(sketch);
 
+  // periodically check for raindrops falling through the floor
+  setInterval(() => {
+    let ripple_surface = document.querySelector("#ripple-surface");
+    let raindrops = document.querySelectorAll("[raindrop]");
+    for (let i = 0; i < raindrops.length; i++) {
+      if (
+        raindrops[i].object3D.position.y <
+          ripple_surface.object3D.position.y + 0.1 &&
+        !raindrops[i].struck
+      ) {
+        let note =
+          scale_notes[Math.floor(Math.random() * scale_notes.length)];
+          samplers['water'].triggerAttack(note);
+          raindrops[i].struck = true;
+      }
+      if (raindrops[i].object3D.position.y < -200) {
+        // HACK to help deleting object
+        raindrops[i].remove();
+      }
+    }
+  }, 20);
+
+  ////////////////////////////////////////// 
+  // FOREST ROOM
+  //////////////////////////////////////////  
   var HTMLcanvas = document.getElementById("forest-canvas");
   var HTMLcontext = HTMLcanvas.getContext("2d");
   let img = document.getElementById("forest");
   console.log(img);
   HTMLcontext.drawImage(img, 0, 0);
 
-  let sceneElement = document.querySelector("a-scene");
+  setInterval(() => {
+    // forest_sampler.triggerAttack("Bb3");
+    // console.log(forest_sampler.volume.value);
+    let fireflies = document.querySelectorAll("[firefly]");
+    let max_fireflies = 20;
+    if (fireflies.length > max_fireflies) {
+      // remove
+    }
+  }, 500);  
 
-  sample_notes = ["F3", "Bb3", "C4", "D4", "Eb4", "Ab4"];
-
+  ////////////////////////////////////////// 
+  // WIND ROOM
+  //////////////////////////////////////////   
   let num_cylinders = 8;
   let bubble_shooter_assy = document.createElement("a-entity");
   bubble_shooter_assy.setAttribute("id", "bubble-shooter");
@@ -130,7 +152,7 @@ $(document).ready(function () {
 
   for (let i = 0; i < num_cylinders; i++) {
     let entity = document.createElement("a-entity");
-    entity.setAttribute("position", { x: 8, y: 0, z: 0 });
+    entity.setAttribute("position", room_centers['wind']);
     entity.setAttribute("id", i);
     let cyl = document.createElement("a-entity");
     entity.setAttribute("rotation", {
@@ -141,8 +163,6 @@ $(document).ready(function () {
     cyl.setAttribute("bubble-shooter", "");
     cyl.setAttribute("material", "side: double; opacity: 0.5");
     cyl.setAttribute("position", { x: 1, y: 0.8, z: 0 });
-    let light = document.createElement("a-light");
-
     let fan = document.createElement("a-entity");
     fan.setAttribute("fan", "");
     fan.setAttribute("id", i);
@@ -152,38 +172,17 @@ $(document).ready(function () {
     ball.setAttribute("ball", "");
     ball.setAttribute("position", { x: 0, y: 0, z: 0 });
     ball.setAttribute("material", "color: #6df4ff; metalness: 0.8");
-    // let sound = document.createElement("a-sound");
-    // // sound.setAttribute("src", "#sample");
-    // sound.setAttribute("autoplay", "true");
-    // sound.setAttribute("loop", "true");
-    // sound.setAttribute("volume", 0.2);
-    // ball.appendChild(sound);
     cyl.appendChild(ball);
     cyl.appendChild(fan);
     entity.appendChild(cyl);
     bubble_shooter_assy.appendChild(entity);
   }
 
-  // var nLasers	= 14
-  // for(var i = 0; i < nLasers; i++){
-  // 	(function(){
-  //     var laserBeam	= new THREEx.LaserBeam()
-  //     let laserBeamEl = document.createElement('a-entity');
-  //     sceneElement.appendChild(laserBeamEl)
-
-  // 		var laserCooked	= new THREEx.LaserCooked(laserBeam)
-  // 		// onRenderFcts.push(function(delta, now){
-  // 		// 	laserCooked.update(delta, now)
-  // 		// })
-  // 		var object3d		= laserBeam.object3d
-  // 		object3d.position.x	= (i-nLasers/2)/2
-  // 		object3d.position.y	= 4
-  // 		object3d.rotation.z	= -Math.PI/2
-  // 	})()
-  // }
-
-  // connect
+  ////////////////////////////////////////// 
+  // TONE.JS
+  //////////////////////////////////////////  
   Tone.Transport.bpm.value = bpm;
+  Tone.Transport.start();
 
   let bps = bpm / 60.0;
   let spb = 1 / bps;
@@ -195,35 +194,13 @@ $(document).ready(function () {
     volume: -10,
   };
 
-  ball_scale = ["C3", "D3", "Eb3", "F3", "G3", "Ab3", "Bb3", "C4"];
   ball_scale_fract = new Array(num_cylinders);
   ball_notes = [];
-  forest_notes = [""];
   for (let i = 0; i < ball_scale_fract.length; i++) {
     ball_scale_fract[i] = 0;
-    ball_notes[i] = ball_scale[ball_scale_fract[i]];
+    ball_notes[i] = scale_notes[ball_scale_fract[i]];
   }
-  // forest_notes = ball_notes;
-  const synth = new Tone.PolySynth(synthOptions);
   const synth2 = new Tone.PolySynth(synthOptions);
-
-  //create an autofilter and start it's LFO
-  autoFilter = new Tone.AutoFilter("4n").toMaster().start();
-  //route an oscillator through the filter and start it
-  // oscillator = new Tone.Oscillator().connect(autoFilter).start();
-  // oscillator = new Tone.PolySynth(synthOptions);
-
-  var vibrato = new Tone.Vibrato(2, 1).toMaster();
-  var freeverb = new Tone.Freeverb().toMaster();
-  freeverb.dampening.value = 1000;
-  var pingPong = new Tone.FeedbackDelay("16n", 0.4).connect(freeverb);
-  tom = new Tone.MembraneSynth({
-    octaves: 3,
-    pitchDecay: 3,
-  }).connect(pingPong);
-  synth.toMaster();
-  synth2.toMaster();
-  // synth3.toMaster();
 
   ball_seq = new Tone.Sequence(
     function (time, note) {
@@ -233,85 +210,57 @@ $(document).ready(function () {
     "8n"
   ).start(0);
   ball_seq.loop = true;
-  // ball_seq.humanize = true;
 
-  forest_seq = new Tone.Sequence(
-    function (time, note) {
-      // console.log('in forets seq', forest_notes);
-      // console.log('in forets seq', time, note);
-      synth2.triggerAttackRelease(note, "8n", time);
+  samplers['forest'] = new Tone.Sampler(
+    {
+      'F3': "assets/forest_F3_fast.mp3",
+      "G#4": "assets/forest_Ab4_fast.mp3",
     },
-    forest_notes,
-    "1n"
-  ).start(0);
-  forest_seq.loop = true;
-  forest_seq.humanize = true;
+    {
+      volume: -20,
+    }
+  );
+  samplers['water'] = new Tone.Sampler(
+    {
+      'F3': "assets/ripple_F3.mp3",
+      "G#4": "assets/ripple_Ab4.mp3",
+    },
+    {
+      volume: -20,
+    }
+  );  
+  samplers['wind'] = new Tone.Sampler(
+    {
+      'F3': "assets/forest_F3_fast.mp3",
+      "G#4": "assets/forest_Ab4_fast.mp3",
+    },
+    {
+      volume: -20,
+    }
+  );  
+  samplers['earth'] = new Tone.Sampler(
+    {
+      'F3': "assets/forest_F3_fast.mp3",
+      "G#4": "assets/forest_Ab4_fast.mp3",
+    },
+    {
+      volume: -20,
+    }
+  );    
+  samplers['forest'].toMaster();
+  samplers['water'].toMaster();
 
-  Tone.Transport.start();
-
-  function get_note_from_canvas_fract(fract) {
-    let index = Math.floor(fract * scale.length);
-    return scale[index];
-  }
-
-  function create_note(pt) {
-    let fract = get_fraction_of_canvas(pt);
-    seq.add(
-      get_secs_from_canvas_fract(fract.x),
-      get_note_from_canvas_fract(fract.y)
-    );
-  }
-
-  function get_fraction_of_canvas(point) {
-    return createVector(
-      point.x / window.innerWidth,
-      point.y / window.innerHeight
-    );
-  }
-
-  function get_secs_from_canvas_fract(fract) {
-    let bps = bpm / 60.0;
-    let spb = 1 / bps;
-    let spm = spb * 4.0;
-    return fract * spm;
-  }
-
-  // periodically check for raindrops falling through the floor
   setInterval(() => {
-    let ripple_surface = document.querySelector("#ripple-surface");
-    // loop through raindrops
-    let raindrops = document.querySelectorAll("[raindrop]");
-    for (let i = 0; i < raindrops.length; i++) {
-      if (
-        raindrops[i].object3D.position.y <
-          ripple_surface.object3D.position.y + 0.1 &&
-        !raindrops[i].struck
-      ) {
-        let sound = document.createElement("a-entity");
-        let note =
-          sample_notes[Math.floor(Math.random() * sample_notes.length)];
-        sound.setAttribute(
-          "sound",
-          "src: #ripple_" + note + "; autoplay: true"
-        );
-        raindrops[i].appendChild(sound);
-        raindrops[i].struck = true;
-      }
-      if (raindrops[i].object3D.position.y < -200) {
-        // HACK to help deleting object
-        raindrops[i].remove();
+    // update sampler volumes based on distance from room
+    if (global_pos){
+      for (var key in samplers) {
+        let dist = room_centers[key].distanceTo(global_pos);
+        samplers[key].volume.value = Math.min(-0.4*dist*dist, -5);
+        // console.log(key, dist, samplers[key].volume.value);
       }
     }
   }, 20);
 
-  // setInterval(() => {
-  //   let fireflies = document.querySelectorAll("[firefly]");
-  //   console.log(fireflies);
-  //   if (fireflies.length > 3){
-
-  //   }
-
-  // }, 500);  
 });
 
 AFRAME.registerComponent("canvas-updater", {
@@ -368,15 +317,14 @@ AFRAME.registerComponent("raycaster-listen", {
     if (!intersection) {
       return;
     }
-    // console.log(intersection);
     if (intersection.uv) {
       u = 1.0 - intersection.uv["x"];
       v = intersection.uv["y"];
-      // console.log(u, v);
     }
 
     if (spacebar && ready_to_add_hit) {
-      //cloud
+
+      // CLOUD INTERACTION
       if (intersection.object.el.id == "cloud") {
         let pt = intersection.point;
         // console.log(this.el.object3D.worldToLocal(intersection.object.parent.parent.position));
@@ -390,7 +338,7 @@ AFRAME.registerComponent("raycaster-listen", {
         scene.appendChild(raindrop);
       }
 
-      //fan
+      // FAN INTERACTION
       if (intersection.object.el.attributes[0].name == "fan") {
         // https://aframe.io/docs/1.0.0/introduction/javascript-events-dom-apis.html#looping-over-entities-from-queryselectorall
         var fans = document.querySelectorAll("[fan]");
@@ -400,51 +348,29 @@ AFRAME.registerComponent("raycaster-listen", {
             fans[i].components.fan.increase();
             balls[i].components.ball.raise();
             ball_scale_fract[i] = Math.floor(
-              balls[i].object3D.position.y * ball_scale.length
+              balls[i].object3D.position.y * scale_notes.length
             );
-            ball_seq.at(i, ball_scale[ball_scale_fract[i]]);
+            ball_seq.at(i, scale_notes[ball_scale_fract[i]]);
           }
         }
       }
 
+      // FOREST INTERACTION
       if (intersection.object.el.id == "forest-wall") {
         let pt = intersection.point;
-
-        // console.log(pt);
         let firefly = document.createElement("a-entity");
         firefly.setAttribute("firefly", "");
         firefly.setAttribute("position", pt);
         let scene = document.querySelector("a-scene");
-
-        let sound = document.createElement("a-entity");
-        let note = sample_notes[Math.floor(Math.random() * sample_notes.length)];
-        let speed = firefly_speeds[Math.floor(Math.random() * firefly_speeds.length)];
-        sound.setAttribute(
-          "sound",
-          "src: #forest_" + note + "_" + speed + "; autoplay: true; loop: true;"
-        );
-        firefly.appendChild(sound);
+        let note =
+          scale_notes[Math.floor(Math.random() * scale_notes.length)];
+        samplers['forest'].triggerAttack(note);
         scene.appendChild(firefly);
-        forest_uv.push([u, v]);
-        // var fireflies = document.querySelectorAll("[firefly]");
-        // for (var i = 0; i < forest_uv.length; i++) {
-        //   console.log(
-        //     forest_uv[i][0] * spm,
-        //     ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
-        //   );
-        //   forest_seq.add(
-        //     forest_uv[i][0] * spm,
-        //     ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
-        //   );
-        //   forest_seq.at(
-        //     (forest_uv[i][0] * spm) / 2.0,
-        //     ball_scale[Math.floor(forest_uv[i][1] * ball_scale.length)]
-        //   );
-        // }
       }
       ready_to_add_hit = false;
     }
 
+    // EARTH INTERACTION
     if (spacebar) {
       var globes = document.querySelectorAll("[globe]");
       for (var i = 0; i < globes.length; i++) {
@@ -453,57 +379,8 @@ AFRAME.registerComponent("raycaster-listen", {
         }
       }
     }
-
-    // oscPort.send({
-    //   address: "/wall_ray",
-    //   args: [
-    //     {
-    //       type: "s",
-    //       value: id.el.id,
-    //     },
-    //     {
-    //       type: "f",
-    //       value: u,
-    //     },
-    //     {
-    //       type: "f",
-    //       value: v,
-    //     },
-    //   ],
-    // });
   },
 });
-
-AFRAME.registerComponent("raycaster-listen-mountain", {
-  init: function () {
-    // Use events to figure out what raycaster is listening so we don't have to
-    // hardcode the raycaster.
-    this.el.addEventListener("raycaster-intersected", (evt) => {
-      // console.log("raycaster-intersected");
-      this.raycaster = evt.detail.el;
-      // console.log("mtn", this.raycaster);
-    });
-    this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
-      // console.log(evt);
-      this.raycaster = null;
-    });
-  },
-
-  tick: function () {
-    if (!this.raycaster) {
-      return;
-    } // Not intersecting.
-
-    let intersection = this.raycaster.components.raycaster.getIntersection(
-      this.el
-    );
-    if (!intersection) {
-      return;
-    }
-    // console.log(intersection);
-  },
-});
-// });
 
 // --------------------------
 // KEYBOARD INTERACTION
@@ -522,6 +399,8 @@ document.addEventListener("keyup", function (event) {
   }
 });
 
+// A frame components
+
 AFRAME.registerComponent("bubble-shooter", {
   init: function () {
     let el = this.el;
@@ -539,7 +418,6 @@ AFRAME.registerComponent("raindrop", {
     vel: { type: "vec3", default: { x: 0, y: 0, z: 0 } },
     struck: { type: "bool", default: false },
   },
-  multiple: true,
 
   init: function () {
     let el = this.el;
@@ -559,7 +437,6 @@ AFRAME.registerComponent("raindrop", {
       z: pos.z,
     });
     let ripple_surface = document.querySelector("#ripple-surface");
-    // console.log(ripple_surface);
     if (
       this.el.getAttribute("position").y < ripple_surface.object3D.position.y
     ) {
@@ -583,48 +460,6 @@ AFRAME.registerComponent("ball", {
     this.geometry = new THREE.SphereGeometry(0.15, 16, 16);
     this.material = new THREE.MeshBasicMaterial();
     this.mesh = new THREE.Mesh(this.geometry, this.material);
-
-    // create the PositionalAudio object (passing in the listener)
-    // var sound = new THREE.PositionalAudio( listener );
-
-    // // load a sound and set it as the PositionalAudio object's buffer
-    // // var audioLoader = new THREE.AudioLoader();
-    // // audioLoader.load( 'assets/sample.mp3', function( buffer ) {
-    // //   sound.setBuffer( buffer );
-    // //   // sound.setLoop(true);
-    // //   sound.setRefDistance( 1 );
-    // //   sound.play();
-    // // });
-    // // console.log(cam_comp);
-    // // var sound1 = new THREE.PositionalAudio( listener );
-    // // console.log(Tone);
-    // // console.log(Tone.context);
-    // // console.log(listener.context);
-    // // console.log(sound.context);
-    // // Tone.setContext(sound.context);
-    // // Tone._context = sound.context;
-    // // sound.context = Tone.context;
-
-    // var sound3 = new THREE.PositionalAudio( listener );
-    // var oscillator = listener.context.createOscillator();
-    // oscillator.type = 'sine';
-    // oscillator.frequency.setValueAtTime( 144, sound3.context.currentTime );
-    // oscillator.start( 0 );
-    // // sound3.setNodeSource( oscillator );
-    // sound3.setRefDistance( 0.1 );
-    // sound3.setVolume( 0.05 );
-    // var oscillator1 = new Tone.Oscillator(440, "sine");
-    // // console.log(oscillator1);
-    // console.log(Tone.context);
-    // Tone.setContext(null);
-    // console.log(Tone.context);
-    // // console.log(sound);
-    // Tone.context = sound.context;
-    // sound.context = Tone.context;
-    // // sound.context = listener.context;
-    // // console.log(sound.context);
-    // sound.setNodeSource (oscillator1);
-    // this.mesh.add( sound );
     el.setObject3D("mesh", this.mesh);
   },
 
@@ -706,11 +541,18 @@ AFRAME.registerComponent("globe", {
       y: rot.y + this.data.omega.y * dt,
       z: 0,
     });
-    // console.log(rot.x);
   },
   wind_up: function () {
     console.log("winding up");
     let rot = this.el.getAttribute("rotation");
     this.el.setAttribute("rotation", { x: rot.x + 0.5, y: rot.y, z: 0 });
+  },
+});
+
+AFRAME.registerComponent("position-reader", {
+  tick: function () {
+    var position = new THREE.Vector3();
+    this.el.object3D.getWorldPosition(position);
+    global_pos = position;
   },
 });

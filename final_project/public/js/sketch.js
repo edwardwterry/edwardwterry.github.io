@@ -31,6 +31,7 @@ let room_centers = {
   'earth': new THREE.Vector3( -8, 0, 0 ),
   'forest': new THREE.Vector3( 0, 0, -5.4 ),
 };
+let num_cylinders = 11;
 
 $(document).ready(function () {
   let sceneElement = document.querySelector("a-scene");
@@ -145,7 +146,6 @@ $(document).ready(function () {
   ////////////////////////////////////////// 
   // WIND ROOM
   //////////////////////////////////////////   
-  let num_cylinders = 8;
   let bubble_shooter_assy = document.createElement("a-entity");
   bubble_shooter_assy.setAttribute("id", "bubble-shooter");
   sceneElement.appendChild(bubble_shooter_assy);
@@ -176,12 +176,6 @@ $(document).ready(function () {
     cyl.appendChild(fan);
     entity.appendChild(cyl);
     bubble_shooter_assy.appendChild(entity);
-    let drum_sequence = new Tone.Sequence((time, note) => {
-      console.log('in drum seq');
-      samplers['wind'].triggerAttack(note);
-    }, [], "4n").start(0);
-    drum_sequence.loop = true;
-    drum_sequences.push(drum_sequence)
   }
 
 
@@ -238,22 +232,31 @@ $(document).ready(function () {
       volume: -20,
     }
   );  
-  samplers['wind'] = new Tone.MembraneSynth(
+
+  samplers['wind'] = new Tone.Sampler(
     {
-      pitchDecay : 0.05 ,
-      octaves : 10 ,
-      oscillator : {
-        type : 'sine'
-      },
-      envelope : {
-        attack : 0.001 ,
-        decay : 0.4 ,
-        sustain : 0.01 ,
-        release : 1.4 ,
-        attackCurve : 'exponential'
-      }
-    }  
-  );  
+      'A3': "assets/conga.wav"
+    },
+    {
+      volume: -20,
+    }
+  );   
+  // samplers['wind'] = new Tone.MembraneSynth(
+  //   {
+  //     pitchDecay : 0.05 ,
+  //     octaves : 10 ,
+  //     oscillator : {
+  //       type : 'sine'
+  //     },
+  //     envelope : {
+  //       attack : 0.001 ,
+  //       decay : 0.4 ,
+  //       sustain : 0.01 ,
+  //       release : 1.4 ,
+  //       attackCurve : 'exponential'
+  //     }
+  //   }  
+  // );  
   samplers['earth'] = new Tone.GrainPlayer;
   const PingPongOptions = {
     "delayTime": '16n',
@@ -263,6 +266,17 @@ $(document).ready(function () {
   const pingPong = new Tone.PingPongDelay(PingPongOptions);
   samplers['water'].connect(pingPong);
   pingPong.toMaster();
+
+  // create individual polyrhythmic sequences
+  for (let i = 0; i < num_cylinders; i++){
+    let seq = new Tone.Sequence((time, note) => {
+      samplers['wind'].triggerAttack(note);
+    }, ["A3"], spm / (i + 1)).start(0);
+    seq.loop = true;
+    // let vol = new Tone.Volume(-12);
+    // Tone.Master.chain(vol, seq);
+    drum_sequences.push(seq);
+  }
 
   // var lfo = new Tone.LFO("4n", 400, 4000);
   // var filter = new Tone.Filter(200, "highpass");

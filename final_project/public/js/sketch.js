@@ -180,7 +180,8 @@ $(document).ready(function () {
     let drum_sequence = new Tone.Sequence((time, note) => {
       console.log('in drum seq');
       samplers['wind'].triggerAttack(note);
-    }, ["A3"], "4n");
+    }, [], "4n").start(0);
+    drum_sequence.loop = true;
     drum_sequences.push(drum_sequence)
   }
 
@@ -384,7 +385,7 @@ AFRAME.registerComponent("raycaster-listen", {
           if (i == intersection.object.el.id) {
             fans[i].components.fan.increase();
             balls[i].components.ball.raise();
-            // drum_sequences[i].volume.value = balls[i].object3D.position.y - 10;
+            // drum_sequences[i].at(0.5, "A3");
             // ball_scale_fract[i] = Math.floor(
             //   balls[i].object3D.position.y * scale_notes.length
             // );
@@ -561,7 +562,7 @@ AFRAME.registerComponent("fan", {
 
 AFRAME.registerComponent("globe", {
   schema: {
-    omega: { type: "vec3", default: { x: 0, y: 0.015, z: 0 } },
+    omega: { type: "vec3", default: { x: 0, y: 0.005, z: 0 } },
   },
   multiple: true,
   init: function () {
@@ -569,15 +570,16 @@ AFRAME.registerComponent("globe", {
   },
   tick: function (t, dt) {
     let rot = this.el.getAttribute("rotation");
-    samplers['earth'].detune = rot.x *50;
-    // samplers['earth'].grainSize = rot.x * 0.1;
+    samplers['earth'].detune = rot.x *5;
+    // console.log(Math.sin(t));
+    samplers['earth'].grainSize = 0.01 ;//(Math.random() + 0.5) * 0.2 * 0.37; //val > 0 ? val : -val;
     let k = 0.000003;
     let c = 0.99;
     let fx = spacebar ? 0 : -k * rot.x;
     this.data.omega.x += fx * dt;
     this.data.omega.x *= c;
     this.el.setAttribute("rotation", {
-      x: rot.x + this.data.omega.x * dt,
+      x: Math.min(rot.x + this.data.omega.x * dt, 40),
       y: rot.y + this.data.omega.y * dt,
       z: 0,
     });

@@ -130,7 +130,6 @@ $(document).ready(function () {
   var HTMLcanvas = document.getElementById("forest-canvas");
   var HTMLcontext = HTMLcanvas.getContext("2d");
   let img = document.getElementById("forest");
-  console.log(img);
   HTMLcontext.drawImage(img, 0, 0);
 
   setInterval(() => {
@@ -219,6 +218,7 @@ $(document).ready(function () {
     "8n"
   ).start(0);
   ball_seq.loop = true;
+  
 
   samplers['forest'] = new Tone.Sampler(
     {
@@ -255,7 +255,21 @@ $(document).ready(function () {
     }  
   );  
   samplers['earth'] = new Tone.GrainPlayer;
+  const PingPongOptions = {
+    "delayTime": '16n',
+    "feedback": 0.6,
+    'wet': 0.9
+  }
+  const pingPong = new Tone.PingPongDelay(PingPongOptions);
+  samplers['water'].connect(pingPong);
+  pingPong.toMaster();
 
+  // var lfo = new Tone.LFO("4n", 400, 4000);
+  // var filter = new Tone.Filter(200, "highpass");
+  // lfo.connect(filter.frequency);  
+
+  // lfo.start();
+  // lfo.toMaster();
   let buff = new Tone.Buffer('assets/amb_comp.mp3');
 	Tone.Buffer.on('load', function(){
 		// after loading the buffer, create the Tone.GrainPlayer
@@ -285,7 +299,7 @@ $(document).ready(function () {
 
   // samplers['earth'] = grainer;
   samplers['forest'].toMaster();
-  samplers['water'].toMaster();
+  // samplers['water'].toMaster();
   samplers['wind'].toMaster();
 
   setInterval(() => {

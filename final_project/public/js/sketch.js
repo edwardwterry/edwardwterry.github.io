@@ -7,7 +7,7 @@ let spm;
 
 let samplers = {  
   'water': null,
-  'wind': null,
+  'wind': [],
   'earth': null,
   'forest': null,
 }
@@ -233,14 +233,7 @@ $(document).ready(function () {
     }
   );  
 
-  samplers['wind'] = new Tone.Sampler(
-    {
-      'A3': "assets/conga.wav"
-    },
-    {
-      volume: -20,
-    }
-  );   
+  
   // samplers['wind'] = new Tone.MembraneSynth(
   //   {
   //     pitchDecay : 0.05 ,
@@ -269,12 +262,21 @@ $(document).ready(function () {
 
   // create individual polyrhythmic sequences
   for (let i = 0; i < num_cylinders; i++){
+    let sampler = new Tone.Sampler(
+      {
+        'A3': "assets/conga.wav"
+      },
+      {
+        volume: -50,
+      }
+    ); 
+    samplers['wind'].push(sampler);
+    samplers['wind'][i].toMaster();
+
     let seq = new Tone.Sequence((time, note) => {
-      samplers['wind'].triggerAttack(note);
+      sampler.triggerAttack(note);
     }, ["A3"], spm / (i + 1)).start(0);
     seq.loop = true;
-    // let vol = new Tone.Volume(-12);
-    // Tone.Master.chain(vol, seq);
     drum_sequences.push(seq);
   }
 
@@ -301,7 +303,7 @@ $(document).ready(function () {
   let loaded = false;
   setInterval(async () => {
     if (buff.loaded && !loaded) {
-      samplers['earth'].start();
+      // samplers['earth'].start();
       loaded = true;
     }
   }, 2000);  
@@ -314,14 +316,14 @@ $(document).ready(function () {
   // samplers['earth'] = grainer;
   samplers['forest'].toMaster();
   // samplers['water'].toMaster();
-  samplers['wind'].toMaster();
+  // samplers['wind'].toMaster();
 
   setInterval(() => {
     // update sampler volumes based on distance from room
     if (global_pos){
       for (var key in samplers) {
         let dist = room_centers[key].distanceTo(global_pos);
-        samplers[key].volume.value = Math.min(-0.4*dist*dist, -15);
+        // samplers[key].volume.value = Math.min(-0.4*dist*dist, -15);
         // console.log(key, dist, samplers[key].volume.value);
       }
     }
@@ -358,14 +360,12 @@ AFRAME.registerComponent("collider-check", {
 // RAYCASTING
 
 // helps to get the properties of the intersected elements
-// oscPort.on("ready", function () {
 AFRAME.registerComponent("raycaster-listen", {
   init: function () {
     // Use events to figure out what raycaster is listening so we don't have to
     // hardcode the raycaster.
     this.el.addEventListener("raycaster-intersected", (evt) => {
       this.raycaster = evt.detail.el;
-      // console.log("normal", this.raycaster);
     });
     this.el.addEventListener("raycaster-intersected-cleared", (evt) => {
       this.raycaster = null;
@@ -413,6 +413,7 @@ AFRAME.registerComponent("raycaster-listen", {
           if (i == intersection.object.el.id) {
             fans[i].components.fan.increase();
             balls[i].components.ball.raise();
+
             // drum_sequences[i].at(0.5, "A3");
             // ball_scale_fract[i] = Math.floor(
             //   balls[i].object3D.position.y * scale_notes.length
@@ -584,6 +585,8 @@ AFRAME.registerComponent("fan", {
     this.el.setAttribute("rotation", { x: 0, y: rot.y + omega.y * dt, z: 0 });
   },
   increase: function () {
+    samplers['wind'][this.el.id].volume.value = Math.min(samplers['wind'][this.el.id].volume.value + 1, -5);
+    console.log(samplers['wind'][this.el.id].volume.value);
     this.data.omega.y += 0.03;
   },
 });

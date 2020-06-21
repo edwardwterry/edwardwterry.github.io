@@ -18,6 +18,7 @@
       <!-- load assets -->
       <a-assets timeout="20000">
         <img id="forest" src="assets/forest_small_trim.jpg" preload="auto">
+        <img id="earth" src="assets/earth.jpg" preload="auto">
         <canvas id="forest-canvas" width='2048' height='512' crossorigin="anonymous"></canvas>
         <canvas id="ripple-canvas" width='512' height='512' crossorigin="anonymous"></canvas>
         <a-asset-item
@@ -103,7 +104,7 @@
       <!-- EARTH ROOM -->
       <a-sphere globe
                 raycaster-listen
-                src="https://raw.githubusercontent.com/aframevr/sample-assets/master/assets/images/space/earth_atmos_4096.jpg"
+                src="#earth"
                 position="-8 1.4 0"
       ></a-sphere>
 

@@ -233,7 +233,7 @@ $(document).ready(function () {
     }
   );  
 
-  
+  let reverb = new Tone.Convolver({ url: 'assets/space.wav', wet: 0.3 });
   // samplers['wind'] = new Tone.MembraneSynth(
   //   {
   //     pitchDecay : 0.05 ,
@@ -271,7 +271,7 @@ $(document).ready(function () {
       }
     ); 
     samplers['wind'].push(sampler);
-    samplers['wind'][i].toMaster();
+    samplers['wind'][i].connect(reverb); // connect(Tone.Master);
     let poly_notes = [];
     for (let j = 0; j < i + 1; j++){
       poly_notes.push('A3');
@@ -284,7 +284,7 @@ $(document).ready(function () {
     // seq.humanize = true;
     drum_sequences.push(seq);
   }
-
+  reverb.toMaster();
   // var lfo = new Tone.LFO("4n", 400, 4000);
   // var filter = new Tone.Filter(200, "highpass");
   // lfo.connect(filter.frequency);  
@@ -607,6 +607,12 @@ AFRAME.registerComponent("globe", {
     let fx = spacebar ? 0 : -k * rot.x;
     this.data.omega.x += fx * dt;
     this.data.omega.x *= c;
+    if (this.data.omega.x < -0.05){
+      this.data.omega.x = -0.05;
+    } else if (this.data.omega.x > 0.05){
+      this.data.omega.x = 0.05;
+    }
+    console.log(this.data.omega.x);
     this.el.setAttribute("rotation", {
       x: Math.min(rot.x + this.data.omega.x * dt, 40),
       y: rot.y + this.data.omega.y * dt,

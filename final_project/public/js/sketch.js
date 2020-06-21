@@ -31,7 +31,7 @@ let room_centers = {
   'earth': new THREE.Vector3( -8, 0, 0 ),
   'forest': new THREE.Vector3( 0, 0, -5.4 ),
 };
-let num_cylinders = 11;
+let num_cylinders = 8;
 
 $(document).ready(function () {
   let sceneElement = document.querySelector("a-scene");
@@ -264,10 +264,11 @@ $(document).ready(function () {
   for (let i = 0; i < num_cylinders; i++){
     let sampler = new Tone.Sampler(
       {
-        'A3': "assets/conga.wav"
+        // 'A3': "assets/conga" + i % 3 + ".wav"
+        'A3': "assets/conga0.wav"
       },
       {
-        volume: -50,
+        volume: -40,
       }
     ); 
     samplers['wind'].push(sampler);
@@ -275,8 +276,9 @@ $(document).ready(function () {
 
     let seq = new Tone.Sequence((time, note) => {
       sampler.triggerAttack(note);
-    }, ["A3"], spm / (i + 1)).start(0);
+    }, ["A3"], spm / (i + 1));
     seq.loop = true;
+    seq.humanize = true;
     drum_sequences.push(seq);
   }
 
@@ -287,43 +289,48 @@ $(document).ready(function () {
   // lfo.start();
   // lfo.toMaster();
   let buff = new Tone.Buffer('assets/amb_comp.mp3');
-	Tone.Buffer.on('load', function(){
-		// after loading the buffer, create the Tone.GrainPlayer
-		samplers['earth'] = new Tone.GrainPlayer(buff);
-		// we're setting the defaults "by hand" just for the heck of it
-		// the better way to do this is probably when you create the GrainPlayer
-		samplers['earth'].grainSize = 0.15;
-		samplers['earth'].playbackRate = 1;
-		samplers['earth'].loop = true;
-		samplers['earth'].volume = 10;
-		samplers['earth'].detune = 0;
-		samplers['earth'].toMaster();
-  });  
+	// Tone.Buffer.on('load', function(){
+	// 	// after loading the buffer, create the Tone.GrainPlayer
+	// 	samplers['earth'] = new Tone.GrainPlayer(buff);
+	// 	// we're setting the defaults "by hand" just for the heck of it
+	// 	// the better way to do this is probably when you create the GrainPlayer
+	// 	samplers['earth'].grainSize = 0.15;
+	// 	samplers['earth'].playbackRate = 1;
+	// 	samplers['earth'].loop = true;
+	// 	samplers['earth'].volume = 10;
+	// 	samplers['earth'].detune = 0;
+	// 	samplers['earth'].toMaster();
+  // });  
 
   let loaded = false;
   setInterval(async () => {
     if (buff.loaded && !loaded) {
-      // samplers['earth'].start();
+      samplers['earth'].start();
       loaded = true;
     }
   }, 2000);  
 
-  // samplers['earth'] = new Tone.Player({
-  //   "url" : "assets/amb_comp.mp3",
-  //   "autostart" : true,
-  // }).toMaster();
+  samplers['earth'] = new Tone.Player({
+    "url" : "assets/amb_comp.mp3",
+    "autostart" : true,
+  }).toMaster();
 
   // samplers['earth'] = grainer;
   samplers['forest'].toMaster();
   // samplers['water'].toMaster();
   // samplers['wind'].toMaster();
+  for (let i = 0; i < num_cylinders; i++){
+    drum_sequences[i].start(0);
+  }
 
   setInterval(() => {
     // update sampler volumes based on distance from room
     if (global_pos){
       for (var key in samplers) {
         let dist = room_centers[key].distanceTo(global_pos);
-        // samplers[key].volume.value = Math.min(-0.4*dist*dist, -15);
+        if (key != 'wind'){
+          samplers[key].volume.value = Math.min(-0.4*dist*dist, -15);
+        }
         // console.log(key, dist, samplers[key].volume.value);
       }
     }
@@ -439,13 +446,9 @@ AFRAME.registerComponent("raycaster-listen", {
     }
 
     // EARTH INTERACTION
-    if (spacebar) {
-      var globes = document.querySelectorAll("[globe]");
-      for (var i = 0; i < globes.length; i++) {
-        if (i == intersection.object.el.id) {
-          globes[i].components.globe.wind_up();
-        }
-      }
+    var globe = document.querySelector("[globe]");
+    if (spacebar && intersection.object.parent.uuid == globe.object3D.uuid){
+      globe.components.globe.wind_up();
     }
   },
 });
@@ -585,7 +588,7 @@ AFRAME.registerComponent("fan", {
     this.el.setAttribute("rotation", { x: 0, y: rot.y + omega.y * dt, z: 0 });
   },
   increase: function () {
-    samplers['wind'][this.el.id].volume.value = Math.min(samplers['wind'][this.el.id].volume.value + 1, -5);
+    samplers['wind'][this.el.id].volume.value = Math.min(samplers['wind'][this.el.id].volume.value + 5, -5);
     console.log(samplers['wind'][this.el.id].volume.value);
     this.data.omega.y += 0.03;
   },

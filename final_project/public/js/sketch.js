@@ -2,7 +2,7 @@
 
 // Audio
 let ball_seq;
-let bpm = 72;
+let bpm = 60;
 let spm;
 
 let samplers = {  
@@ -15,6 +15,7 @@ let scale_notes = ["F3", "Bb3", "C4", "D4", "Eb4", "Ab4"];
 let firefly_speeds = ["slow", "med", "fast"];
 let ball_scale_fract;
 let drum_sequences = [];
+let wind_volume_range = [-60, -30];
 
 // Interaction
 let spacebar = false;
@@ -22,6 +23,8 @@ let ready_to_add_hit = false;
 let u, v;
 let ripple_u = 0.0;
 let ripple_v = 0.0;
+let fan_speed_range = [0.3, 0.6];
+let ball_height_range = [0.0, 1.0];
 
 // Layout
 let global_pos;
@@ -110,7 +113,7 @@ $(document).ready(function () {
     for (let i = 0; i < raindrops.length; i++) {
       if (
         raindrops[i].object3D.position.y <
-          ripple_surface.object3D.position.y + 0.1 &&
+          ripple_surface.object3D.position.y + 0.2 &&
         !raindrops[i].struck
       ) {
         let note =
@@ -166,10 +169,11 @@ $(document).ready(function () {
     let fan = document.createElement("a-entity");
     fan.setAttribute("fan", "");
     fan.setAttribute("id", i);
-    fan.setAttribute("position", { x: 0, y: -0.4, z: 0 });
+    fan.setAttribute("position", { x: 0, y: -0.45, z: 0 });
     fan.setAttribute("raycaster-listen", "");
     let ball = document.createElement("a-entity");
     ball.setAttribute("ball", "");
+    ball.setAttribute("id", i);
     ball.setAttribute("position", { x: 0, y: 0, z: 0 });
     ball.setAttribute("material", "color: #6df4ff; metalness: 0.8");
     cyl.appendChild(ball);
@@ -252,9 +256,9 @@ $(document).ready(function () {
   // );  
   samplers['earth'] = new Tone.GrainPlayer;
   const PingPongOptions = {
-    "delayTime": '16n',
-    "feedback": 0.6,
-    'wet': 0.9
+    "delayTime": '8n',
+    "feedback": 0.3,
+    'wet': 0.2
   }
   const pingPong = new Tone.PingPongDelay(PingPongOptions);
   samplers['water'].connect(pingPong);
@@ -339,6 +343,10 @@ $(document).ready(function () {
     }
   }, 20);
 
+  setInterval(() => {
+    // fans[i].components.fan.decrease();
+    // balls[i].components.ball.lower();
+  }, 100);
 });
 
 AFRAME.registerComponent("canvas-updater", {
@@ -416,13 +424,7 @@ AFRAME.registerComponent("raycaster-listen", {
       if (intersection.object.el.attributes[0].name == "fan") {
         // https://aframe.io/docs/1.0.0/introduction/javascript-events-dom-apis.html#looping-over-entities-from-queryselectorall
         var fans = document.querySelectorAll("[fan]");
-        var balls = document.querySelectorAll("[ball]");
-        for (var i = 0; i < fans.length; i++) {
-          if (i == intersection.object.el.id) {
-            fans[i].components.fan.increase();
-            balls[i].components.ball.raise();
-          }
-        }
+        fans[intersection.object.el.id].components.fan.increase();
       }
 
       // FOREST INTERACTION
@@ -540,12 +542,12 @@ AFRAME.registerComponent("ball", {
     });
   },
 
-  raise: function () {
-    let raise_incr = 0.05;
-    let pos = this.el.getAttribute("position");
+  raise: function (i) {
+    let fans = document.querySelectorAll("[fan]");
+    let throttle = fans[i].components.fan.data.throttle;
     this.el.setAttribute("position", {
       x: 0,
-      y: Math.min(pos.y + raise_incr, 1.0),
+      y: throttle * (ball_height_range[1] - ball_height_range[0]) + ball_height_range[0],
       z: 0,
     }); // TODO slerp
   },
@@ -569,7 +571,8 @@ AFRAME.registerComponent("firefly", {
 
 AFRAME.registerComponent("fan", {
   schema: {
-    omega: { type: "vec3", default: { x: 0, y: 0.1, z: 0 } },
+    omega: { type: "vec3", default: { x: 0, y: fan_speed_range[0], z: 0 } },
+    throttle: { type: "float", default: 0.0 },
   },
   multiple: true,
   init: function () {
@@ -583,9 +586,13 @@ AFRAME.registerComponent("fan", {
     this.el.setAttribute("rotation", { x: 0, y: rot.y + omega.y * dt, z: 0 });
   },
   increase: function () {
-    samplers['wind'][this.el.id].volume.value = Math.min(samplers['wind'][this.el.id].volume.value + 5, -5);
-    console.log(samplers['wind'][this.el.id].volume.value);
-    this.data.omega.y += 0.03;
+    let id = this.el.id;
+    let balls = document.querySelectorAll("[ball]");
+    balls[id].components.ball.raise(id);
+    // samplers['wind'][this.el.id].volume.value = Math.min(samplers['wind'][this.el.id].volume.value + 5, -5);
+    // console.log(samplers['wind'][this.el.id].volume.value);
+    this.data.throttle = Math.min(this.data.throttle + 0.05, 1.0);
+    this.data.omega.y = this.data.throttle * (fan_speed_range[1] - fan_speed_range[0]) + fan_speed_range[0];
   },
 });
 
@@ -612,7 +619,6 @@ AFRAME.registerComponent("globe", {
     } else if (this.data.omega.x > 0.05){
       this.data.omega.x = 0.05;
     }
-    console.log(this.data.omega.x);
     this.el.setAttribute("rotation", {
       x: Math.min(rot.x + this.data.omega.x * dt, 40),
       y: rot.y + this.data.omega.y * dt,

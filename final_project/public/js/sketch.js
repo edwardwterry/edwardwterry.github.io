@@ -532,14 +532,13 @@ AFRAME.registerComponent("ball", {
   },
 
   tick: function (t, dt) {
-    let rand_incr = 0; // Math.random() * 2.0 - 1.0;
-    let noise_factor = 5e-5;
-    let pos = this.el.getAttribute("position");
+    let fans = document.querySelectorAll("[fan]");
+    let throttle = fans[this.el.id].components.fan.data.throttle;
     this.el.setAttribute("position", {
       x: 0,
-      y: Math.max(pos.y + rand_incr * noise_factor * dt, -0.4),
+      y: throttle * (ball_height_range[1] - ball_height_range[0]) + ball_height_range[0],
       z: 0,
-    });
+    }); // TODO slerp
   },
 
   raise: function (i) {
@@ -572,7 +571,7 @@ AFRAME.registerComponent("firefly", {
 AFRAME.registerComponent("fan", {
   schema: {
     omega: { type: "vec3", default: { x: 0, y: fan_speed_range[0], z: 0 } },
-    throttle: { type: "float", default: 0.0 },
+    throttle: { type: "float", default: 1.0 },
   },
   multiple: true,
   init: function () {
@@ -584,11 +583,14 @@ AFRAME.registerComponent("fan", {
     let omega = this.data.omega;
     let rot = this.el.getAttribute("rotation");
     this.el.setAttribute("rotation", { x: 0, y: rot.y + omega.y * dt, z: 0 });
+    // this.data.throttle = 0.01;
+    this.data.throttle = Math.max(this.data.throttle - 0.0001 * dt, 0.0);
+    // console.log(this.data.throttle);
   },
   increase: function () {
-    let id = this.el.id;
-    let balls = document.querySelectorAll("[ball]");
-    balls[id].components.ball.raise(id);
+    // let id = this.el.id;
+    // let balls = document.querySelectorAll("[ball]");
+    // balls[id].components.ball.raise(id);
     // samplers['wind'][this.el.id].volume.value = Math.min(samplers['wind'][this.el.id].volume.value + 5, -5);
     // console.log(samplers['wind'][this.el.id].volume.value);
     this.data.throttle = Math.min(this.data.throttle + 0.05, 1.0);

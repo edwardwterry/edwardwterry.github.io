@@ -264,8 +264,7 @@ $(document).ready(function () {
   for (let i = 0; i < num_cylinders; i++){
     let sampler = new Tone.Sampler(
       {
-        // 'A3': "assets/conga" + i % 3 + ".wav"
-        'A3': "assets/conga0.wav"
+        'A3': "assets/conga" + i % 3 + ".wav"
       },
       {
         volume: -40,
@@ -273,12 +272,16 @@ $(document).ready(function () {
     ); 
     samplers['wind'].push(sampler);
     samplers['wind'][i].toMaster();
-
+    let poly_notes = [];
+    for (let j = 0; j < i + 1; j++){
+      poly_notes.push('A3');
+    }
+    console.log(i, poly_notes, spm / (i + 1));
     let seq = new Tone.Sequence((time, note) => {
       sampler.triggerAttack(note);
-    }, ["A3"], spm / (i + 1));
+    }, poly_notes, spm / (i + 1));
     seq.loop = true;
-    seq.humanize = true;
+    // seq.humanize = true;
     drum_sequences.push(seq);
   }
 
@@ -400,14 +403,12 @@ AFRAME.registerComponent("raycaster-listen", {
       // CLOUD INTERACTION
       if (intersection.object.el.id == "cloud") {
         let pt = intersection.point;
-        // console.log(this.el.object3D.worldToLocal(intersection.object.parent.parent.position));
         let raindrop = document.createElement("a-entity");
         raindrop.setAttribute("raindrop", "struck: false;");
         raindrop.setAttribute("position", pt);
         raindrop.setAttribute("material", "opacity: 0.5");
 
         let scene = document.querySelector("a-scene");
-        // console.log(scene);
         scene.appendChild(raindrop);
       }
 
@@ -420,12 +421,6 @@ AFRAME.registerComponent("raycaster-listen", {
           if (i == intersection.object.el.id) {
             fans[i].components.fan.increase();
             balls[i].components.ball.raise();
-
-            // drum_sequences[i].at(0.5, "A3");
-            // ball_scale_fract[i] = Math.floor(
-            //   balls[i].object3D.position.y * scale_notes.length
-            // );
-            // ball_seq.at(i, scale_notes[ball_scale_fract[i]]);
           }
         }
       }

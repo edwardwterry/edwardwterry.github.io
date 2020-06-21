@@ -15,7 +15,7 @@ let scale_notes = ["F3", "Bb3", "C4", "D4", "Eb4", "Ab4"];
 let firefly_speeds = ["slow", "med", "fast"];
 let ball_scale_fract;
 let drum_sequences = [];
-let wind_volume_range = [-60, -30];
+let wind_volume_range = [-40, -5];
 
 // Interaction
 let spacebar = false;
@@ -220,8 +220,8 @@ $(document).ready(function () {
 
   samplers['forest'] = new Tone.Sampler(
     {
-      'F3': "assets/forest_F3_fast.mp3",
-      "G#4": "assets/forest_Ab4_fast.mp3",
+      'F3': "assets/forest_F3_slow.mp3",
+      "G#4": "assets/forest_Ab4_slow.mp3",
     },
     {
       volume: -20,
@@ -280,12 +280,11 @@ $(document).ready(function () {
     for (let j = 0; j < i + 1; j++){
       poly_notes.push('A3');
     }
-    console.log(i, poly_notes, spm / (i + 1));
     let seq = new Tone.Sequence((time, note) => {
       sampler.triggerAttack(note);
     }, poly_notes, spm / (i + 1));
     seq.loop = true;
-    // seq.humanize = true;
+    seq.humanize = true;
     drum_sequences.push(seq);
   }
   reverb.toMaster();
@@ -336,7 +335,7 @@ $(document).ready(function () {
       for (var key in samplers) {
         let dist = room_centers[key].distanceTo(global_pos);
         if (key != 'wind'){
-          samplers[key].volume.value = Math.min(-0.4*dist*dist, -15);
+          samplers[key].volume.value = Math.min(-0.2*dist*dist, -15);
         }
         // console.log(key, dist, samplers[key].volume.value);
       }
@@ -369,7 +368,7 @@ AFRAME.registerComponent("collider-check", {
 
   init: function () {
     this.el.addEventListener("raycaster-intersection", function () {
-      console.log("Player hit something!");
+      // console.log("Player hit something!");
     });
   },
 });
@@ -541,15 +540,15 @@ AFRAME.registerComponent("ball", {
     }); // TODO slerp
   },
 
-  raise: function (i) {
-    let fans = document.querySelectorAll("[fan]");
-    let throttle = fans[i].components.fan.data.throttle;
-    this.el.setAttribute("position", {
-      x: 0,
-      y: throttle * (ball_height_range[1] - ball_height_range[0]) + ball_height_range[0],
-      z: 0,
-    }); // TODO slerp
-  },
+  // raise: function (i) {
+  //   let fans = document.querySelectorAll("[fan]");
+  //   let throttle = fans[i].components.fan.data.throttle;
+  //   this.el.setAttribute("position", {
+  //     x: 0,
+  //     y: throttle * (ball_height_range[1] - ball_height_range[0]) + ball_height_range[0],
+  //     z: 0,
+  //   }); // TODO slerp
+  // },
 });
 
 AFRAME.registerComponent("firefly", {
@@ -571,7 +570,7 @@ AFRAME.registerComponent("firefly", {
 AFRAME.registerComponent("fan", {
   schema: {
     omega: { type: "vec3", default: { x: 0, y: fan_speed_range[0], z: 0 } },
-    throttle: { type: "float", default: 1.0 },
+    throttle: { type: "float", default: 0.0 },
   },
   multiple: true,
   init: function () {
@@ -584,15 +583,11 @@ AFRAME.registerComponent("fan", {
     let rot = this.el.getAttribute("rotation");
     this.el.setAttribute("rotation", { x: 0, y: rot.y + omega.y * dt, z: 0 });
     // this.data.throttle = 0.01;
-    this.data.throttle = Math.max(this.data.throttle - 0.0001 * dt, 0.0);
+    this.data.throttle = Math.max(this.data.throttle - 0.00001 * dt, 0.0);
+    samplers['wind'][this.el.id].volume.value = this.data.throttle * (wind_volume_range[1] - wind_volume_range[0]) + wind_volume_range[0];
     // console.log(this.data.throttle);
   },
   increase: function () {
-    // let id = this.el.id;
-    // let balls = document.querySelectorAll("[ball]");
-    // balls[id].components.ball.raise(id);
-    // samplers['wind'][this.el.id].volume.value = Math.min(samplers['wind'][this.el.id].volume.value + 5, -5);
-    // console.log(samplers['wind'][this.el.id].volume.value);
     this.data.throttle = Math.min(this.data.throttle + 0.05, 1.0);
     this.data.omega.y = this.data.throttle * (fan_speed_range[1] - fan_speed_range[0]) + fan_speed_range[0];
   },

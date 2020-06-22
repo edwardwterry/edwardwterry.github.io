@@ -220,10 +220,11 @@ $(document).ready(function () {
 
   samplers['forest'] = new Tone.Sampler(
     {
-      'F3': "assets/forest_F3_slow.mp3",
-      "G#4": "assets/forest_Ab4_slow.mp3",
+      'F3': "assets/forest_F3.mp3",
+      "G#4": "assets/forest_Ab4.mp3",
     },
     {
+      attack : 2000,
       volume: -20,
     }
   );
@@ -260,6 +261,18 @@ $(document).ready(function () {
     "feedback": 0.3,
     'wet': 0.2
   }
+  autoFilter = new Tone.Chorus( {
+    frequency : 0.7 ,
+    delayTime : 1.5 ,
+    depth : 0.7 ,
+    type : 'sine' ,
+    spread : 180
+    }
+  );
+  const freeverb = new Tone.Freeverb({
+    roomSize: 500,
+    dampening: 1000
+  });  
   const pingPong = new Tone.PingPongDelay(PingPongOptions);
   samplers['water'].connect(pingPong);
   pingPong.toMaster();
@@ -311,18 +324,20 @@ $(document).ready(function () {
   let loaded = false;
   setInterval(async () => {
     if (buff.loaded && !loaded) {
-      samplers['earth'].start();
+      // samplers['earth'].start();
       loaded = true;
     }
   }, 2000);  
 
   samplers['earth'] = new Tone.Player({
     "url" : "assets/amb_comp.mp3",
-    "autostart" : true,
+    "autostart" : false,
   }).toMaster();
 
   // samplers['earth'] = grainer;
-  samplers['forest'].toMaster();
+  samplers['forest'].connect(autoFilter);
+  autoFilter.connect(freeverb);
+  freeverb.toMaster();
   // samplers['water'].toMaster();
   // samplers['wind'].toMaster();
   for (let i = 0; i < num_cylinders; i++){

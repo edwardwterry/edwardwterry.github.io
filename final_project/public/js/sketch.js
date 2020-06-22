@@ -2,7 +2,7 @@
 
 // Audio
 let ball_seq;
-let bpm = 60;
+let bpm = 40;
 let spm;
 
 let samplers = {  
@@ -35,6 +35,7 @@ let room_centers = {
   'forest': new THREE.Vector3( 0, 0, -5.4 ),
 };
 let num_cylinders = 8;
+let max_fireflies = 50;
 
 $(document).ready(function () {
   let sceneElement = document.querySelector("a-scene");
@@ -137,12 +138,14 @@ $(document).ready(function () {
   HTMLcontext.drawImage(img, 0, 0);
 
   setInterval(() => {
-    // forest_sampler.triggerAttack("Bb3");
-    // console.log(forest_sampler.volume.value);
     let fireflies = document.querySelectorAll("[firefly]");
-    let max_fireflies = 20;
-    if (fireflies.length > max_fireflies) {
-      // remove
+    for (let i = 0; i < fireflies.length; i++) { 
+      if (fireflies[i].components.firefly.data.time_alive > 40000){
+        fireflies[i].remove();
+      }
+    }
+    while (fireflies.length > max_fireflies) {
+      fireflies[0].remove();
     }
   }, 500);  
 
@@ -188,7 +191,7 @@ $(document).ready(function () {
   // TONE.JS
   //////////////////////////////////////////  
   Tone.Transport.bpm.value = bpm;
-  Tone.Transport.start();
+  Tone.Transport.start('+2.0');
 
   let bps = bpm / 60.0;
   let spb = 1 / bps;
@@ -273,6 +276,11 @@ $(document).ready(function () {
     roomSize: 500,
     dampening: 1000
   });  
+
+  // const freeverb_wind = new Tone.Freeverb({
+  //   roomSize: 0.5,
+  //   dampening: 3000
+  // });   
   const pingPong = new Tone.PingPongDelay(PingPongOptions);
   samplers['water'].connect(pingPong);
   pingPong.toMaster();
@@ -331,8 +339,11 @@ $(document).ready(function () {
 
   samplers['earth'] = new Tone.Player({
     "url" : "assets/amb_comp.mp3",
-    "autostart" : false,
-  }).toMaster();
+    "autostart" : true,
+  });
+  let fm_oscillator = new Tone.FMOscillator();
+  samplers['earth'].connect(fm_oscillator.frequency);
+  fm_oscillator.toMaster();
 
   // samplers['earth'] = grainer;
   samplers['forest'].connect(autoFilter);
@@ -447,6 +458,7 @@ AFRAME.registerComponent("raycaster-listen", {
         let firefly = document.createElement("a-entity");
         firefly.setAttribute("firefly", "");
         firefly.setAttribute("position", pt);
+        // console.log(firefly);
         let scene = document.querySelector("a-scene");
         let note =
           scale_notes[Math.floor(Math.random() * scale_notes.length)];
@@ -567,6 +579,9 @@ AFRAME.registerComponent("ball", {
 });
 
 AFRAME.registerComponent("firefly", {
+  schema: {
+    time_alive: { type: "float", default: 0.0 },
+  },  
   init: function () {
     let el = this.el;
     this.geometry = new THREE.SphereGeometry(0.01, 16, 16);
@@ -578,7 +593,8 @@ AFRAME.registerComponent("firefly", {
   tick: function (t, dt) {
     this.el.object3D.el.components.firefly.material.opacity =
       (Math.sin(t * 0.002) + 1.0) / 2.0; // .color too
-    // console.log(this.el);
+    this.data.time_alive += dt;
+    // console.log(this.data.time_alive);
   },
 });
 
@@ -638,7 +654,6 @@ AFRAME.registerComponent("globe", {
     });
   },
   wind_up: function () {
-    console.log("winding up");
     let rot = this.el.getAttribute("rotation");
     this.el.setAttribute("rotation", { x: Math.min(rot.x + 0.5, 40), y: rot.y, z: 0 });
   },

@@ -5,16 +5,17 @@
       type="text/javascript"
       src="https://code.jquery.com/jquery-1.10.0.min.js"
     ></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.0.1/dist/aframe-extras.min.js"></script>    
     <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script>
-
+    <script src="https://recast-api.donmccurdy.com/aframe-inspector-plugin-recast.js"></script>
     <script src="lib/p5.js"></script>
     <script src="js/sketch.js"></script>
     <!-- <style> .a-canvas { display: none; } </style> -->
   </head>
   <body>
     <!-- <canvas id="custom-canvas" width='2048' height='512' crossorigin="anonymous"></canvas> -->
-    <a-scene shadow antialiasing>
+    <a-scene shadow antialiasing inspector-plugin-recast>
       <!-- load assets -->
       <a-assets timeout="20000">
         <img id="forest" src="assets/forest_small_trim.jpg" preload="auto">
@@ -39,6 +40,9 @@
         ></a-asset-item>          
 
       </a-assets>
+<!-- Nav Mesh -->
+<a-entity gltf-model="assets/navmesh.gltf"
+          nav-mesh visible="false"></a-entity>      
 
 <!-- CLOUD ROOM -->
       <a-entity id="cloud-room" position="0 0 8">
@@ -151,7 +155,7 @@
       
       <a-entity id="floor"
                 material="side: double; color: #555"
-                geometry="primitive: plane; height: 30; width: 30;"
+                geometry="primitive: plane; height: 40; width: 40;"
                 position="0 0.05 0" rotation="90 0 0"
                 >
       </a-entity>    
@@ -162,22 +166,41 @@
       <a-entity light="type:spot; angle: 45; color: #84b9ca; penumbra: 0.31" position="-2.7 0.05 -2.7" rotation="90 0 0"></a-entity>
       <a-entity light="type:spot; angle: 45; color: #84b9ca; penumbra: 0.31" position="2.7 0.05 -2.7" rotation="90 0 0"></a-entity>
       <a-entity light="type: ambient; intensity: 0.5"></a-entity>
+    <!-- STAGE -->
 
       <!-- camera and reticle -->
-      <a-entity
-        camera
-        look-controls
-        position="0 1.5 0"
-        wasd-controls="acceleration:65"
-        collider-check
-        position-reader
-      >
-        <a-entity
-          cursor="fuse: true; fuseTimeout: 500"
-          raycaster="showLine: false; far: 20; interval: 1000; objects: .clickable"
-          position="0 0 -0.5"
+        <!-- <a-entity id="rig" movement-controls="constrainToNavMesh: true;">      
+          <a-entity
+            camera
+            look-controls="pointerLockEnabled: true;"
+            position="0 1.5 0"
+            wasd-controls="acceleration:65"
+            collider-check
+            position-reader
+          >
+            <a-entity
+              cursor="fuse: true; fuseTimeout: 500"
+              raycaster="showLine: false; far: 20; interval: 1000; objects: .clickable"
+              position="0 0 -0.5"
+              geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"
+              material="color: black; shader: flat"
+            >
+            </a-entity>
+          </a-entity>
+      </a-entity> -->
 
-        >
+      <a-entity id="rig" movement-controls="constrainToNavMesh: true">
+        <a-entity camera
+                  position="0 1.6 0"
+                  collider-check
+                  position-reader
+
+                  look-controls>
+          <a-cursor cursor raycaster="objects: [nav-mesh];"
+          position="0 0 -0.5"
+          geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"
+          material="color: black; shader: flat"
+          ></a-cursor>
         </a-entity>
       </a-entity>
 

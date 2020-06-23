@@ -136,10 +136,14 @@ $(document).ready(function () {
   //////////////////////////////////////////  
   var HTMLcanvas = document.getElementById("forest-canvas");
   var HTMLcontext = HTMLcanvas.getContext("2d");
-  var img = new Image;
-  img.src = 'assets/forest_small_trim.jpg';  
-  // let img = document.getElementById("forest");
-  HTMLcontext.drawImage(img, 0, 0);
+  setInterval(() => {
+    let img = document.getElementById("forest");
+    HTMLcontext.drawImage(img, 0, 0);
+  }, 500);  
+
+  // var img = new Image;
+  // img.src = 'assets/forest_small_trim-min.jpg';  
+
 
   setInterval(() => {
     let fireflies = document.querySelectorAll("[firefly]");
@@ -151,7 +155,7 @@ $(document).ready(function () {
     while (fireflies.length > max_fireflies) {
       fireflies[0].remove();
     }
-  }, 500);  
+  }, 100);  
 
   ////////////////////////////////////////// 
   // WIND ROOM
@@ -241,7 +245,7 @@ $(document).ready(function () {
       "G#4": "assets/ripple_Ab4.mp3",
     },
     {
-      volume: 15,
+      volume: 5,
     }
   );  
 
@@ -360,23 +364,27 @@ $(document).ready(function () {
     drum_sequences[i].start(0);
   }
 
-  setInterval(() => {
-    // update sampler volumes based on distance from room
-    if (global_pos){
-      for (var key in samplers) {
-        let dist = room_centers[key].distanceTo(global_pos);
-        // if (key != 'wind'){
-        //   samplers[key].volume.value = Math.min(-0.2*dist*dist, -15);
-        // }
-        // console.log(key, dist, samplers[key].volume.value);
-      }
-    }
-  }, 20);
+  // setInterval(() => {
+  //   // update sampler volumes based on distance from room
+  //   if (global_pos){
+  //     for (var key in samplers) {
+  //       let dist = room_centers[key].distanceTo(global_pos);
+  //       // if (key != 'wind'){
+  //       //   samplers[key].volume.value = Math.min(-0.2*dist*dist, -15);
+  //       // }
+  //       // console.log(key, dist, samplers[key].volume.value);
+  //     }
+  //   }
+  // }, 20);
 
-  setInterval(() => {
-    // fans[i].components.fan.decrease();
-    // balls[i].components.ball.lower();
-  }, 100);
+  // setInterval(() => {
+  //   // fans[i].components.fan.decrease();
+  //   // balls[i].components.ball.lower();
+  // }, 100);
+
+  sceneElement.addEventListener('load', function (event) {
+    console.log(event);
+  });  
 });
 
 AFRAME.registerComponent("canvas-updater", {
@@ -459,6 +467,10 @@ AFRAME.registerComponent("raycaster-listen", {
 
       // FOREST INTERACTION
       if (intersection.object.el.id == "forest-wall") {
+        // let fireflies = document.querySelectorAll("[firefly]");
+        // while (fireflies.length > max_fireflies) {
+        //   fireflies[0].remove();
+        // }
         let pt = intersection.point;
         let firefly = document.createElement("a-entity");
         firefly.setAttribute("firefly", "");

@@ -17,6 +17,7 @@ let ball_scale_fract;
 let drum_sequences = [];
 let wind_volume_range = [-30, 5];
 let freeverb;
+let pitch_shift;
 
 // Interaction
 let spacebar = false;
@@ -316,35 +317,36 @@ $(document).ready(function () {
 
   // lfo.start();
   // lfo.toMaster();
-  let buff = new Tone.Buffer('assets/amb_comp.mp3');
-	Tone.Buffer.on('load', function(){
-		// after loading the buffer, create the Tone.GrainPlayer
-		samplers['earth'] = new Tone.GrainPlayer(buff);
-		// we're setting the defaults "by hand" just for the heck of it
-		// the better way to do this is probably when you create the GrainPlayer
-		samplers['earth'].grainSize = 0.02;
-		samplers['earth'].playbackRate = 1;
-		samplers['earth'].loop = true;
-		samplers['earth'].volume = 0;
-		samplers['earth'].detune = 0;
-		samplers['earth'].toMaster();
-  });  
+  // let buff = new Tone.Buffer('assets/amb_comp.mp3');
+	// Tone.Buffer.on('load', function(){
+	// 	// after loading the buffer, create the Tone.GrainPlayer
+	// 	samplers['earth'] = new Tone.GrainPlayer(buff);
+	// 	// we're setting the defaults "by hand" just for the heck of it
+	// 	// the better way to do this is probably when you create the GrainPlayer
+	// 	samplers['earth'].grainSize = 0.02;
+	// 	samplers['earth'].playbackRate = 1;
+	// 	samplers['earth'].loop = true;
+	// 	samplers['earth'].volume.value = -15;
+	// 	samplers['earth'].detune = 0;
+	// 	samplers['earth'].toMaster();
+  // });  
 
-  let loaded = false;
-  setInterval(async () => {
-    if (buff.loaded && !loaded) {
-      samplers['earth'].start();
-      loaded = true;
-    }
-  }, 2000);  
+  // let loaded = false;
+  // setInterval(async () => {
+  //   if (buff.loaded && !loaded) {
+  //     samplers['earth'].start();
+  //     loaded = true;
+  //   }
+  // }, 2000);  
 
   samplers['earth'] = new Tone.Player({
     "url" : "assets/amb_comp.mp3",
     "autostart" : true,
+    'loop': true
   });
-  let fm_oscillator = new Tone.FMOscillator();
-  samplers['earth'].connect(fm_oscillator.frequency);
-  fm_oscillator.toMaster();
+  pitch_shift = new Tone.PitchShift();
+  samplers['earth'].connect(pitch_shift);
+  pitch_shift.toMaster();
 
   // samplers['earth'] = grainer;
   // samplers['forest'].connect(autoFilter);
@@ -645,11 +647,16 @@ AFRAME.registerComponent("globe", {
   },
   tick: function (t, dt) {
     let rot = this.el.getAttribute("rotation");
-    samplers['earth'].detune = rot.x *5;
+    pitch_shift.pitch = Math.abs(rot.x *0.04);
     // console.log(Math.sin(t));
     // samplers['earth'].grainSize = 0.01 ;//(Math.random() + 0.5) * 0.2 * 0.37; //val > 0 ? val : -val;
     let k = 0.000003;
     let c = 0.99;
+    if (rot.x < -40){
+      rot.x = -40;
+    } else if (rot.x > 40){
+      rot.x = 40;
+    }    
     let fx = spacebar ? 0 : -k * rot.x;
     this.data.omega.x += fx * dt;
     this.data.omega.x *= c;
@@ -658,11 +665,18 @@ AFRAME.registerComponent("globe", {
     } else if (this.data.omega.x > 0.05){
       this.data.omega.x = 0.05;
     }
+    let angle = rot.x + this.data.omega.x * dt;
+    if (angle < -40){
+      angle = -40;
+    } else if (angle > 40){
+      angle = 40;
+    }   
     this.el.setAttribute("rotation", {
-      x: Math.min(rot.x + this.data.omega.x * dt, 40),
+      x: angle,
       y: rot.y + this.data.omega.y * dt,
       z: 0,
     });
+    console.log(angle); 
   },
   wind_up: function () {
     let rot = this.el.getAttribute("rotation");

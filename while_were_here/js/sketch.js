@@ -37,7 +37,7 @@ let room_centers = {
   'forest': new THREE.Vector3( 0, 0, -5.4 ),
 };
 let num_cylinders = 8;
-let max_fireflies = 50;
+let max_fireflies = 10;
 
 $(document).ready(function () {
   let sceneElement = document.querySelector("a-scene");
@@ -136,7 +136,9 @@ $(document).ready(function () {
   //////////////////////////////////////////  
   var HTMLcanvas = document.getElementById("forest-canvas");
   var HTMLcontext = HTMLcanvas.getContext("2d");
-  let img = document.getElementById("forest");
+  var img = new Image;
+  img.src = 'assets/forest_small_trim.jpg';  
+  // let img = document.getElementById("forest");
   HTMLcontext.drawImage(img, 0, 0);
 
   setInterval(() => {
@@ -260,7 +262,7 @@ $(document).ready(function () {
   //     }
   //   }  
   // );  
-  samplers['earth'] = new Tone.GrainPlayer;
+  // samplers['earth'] = new Tone.GrainPlayer;
   const PingPongOptions = {
     "delayTime": '8n',
     "feedback": 0.3,
@@ -349,8 +351,8 @@ $(document).ready(function () {
   pitch_shift.toMaster();
 
   // samplers['earth'] = grainer;
-  // samplers['forest'].connect(autoFilter);
-  // autoFilter.connect(freeverb);
+  samplers['forest'].connect(autoFilter);
+  autoFilter.connect(freeverb);
   freeverb.toMaster();
   // samplers['water'].toMaster();
   // samplers['wind'].toMaster();
@@ -464,17 +466,7 @@ AFRAME.registerComponent("raycaster-listen", {
         // console.log(firefly);
         let scene = document.querySelector("a-scene");
         let note =
-          scale_notes[Math.floor(Math.random() * scale_notes.length)];
-        let filt = new Tone.Chorus( {
-          frequency : Math.random() * 2 + 1.5,
-          delayTime : 1.5 ,
-          depth : 0.7 ,
-          type : 'sine' ,
-          spread : 180
-          }
-        );          
-        samplers['forest'].connect(filt);
-        filt.connect(freeverb);
+          scale_notes[Math.floor(Math.random() * scale_notes.length)];         
         samplers['forest'].triggerAttack(note);
         scene.appendChild(firefly);
       }

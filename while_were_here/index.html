@@ -1,0 +1,209 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://code.jquery.com/jquery-1.10.0.min.js"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.0.1/dist/aframe-extras.min.js"></script>    
+    <script src="https://rawgit.com/feiss/aframe-environment-component/master/dist/aframe-environment-component.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.0.1/Tone.min.js"></script>
+    <script src="https://recast-api.donmccurdy.com/aframe-inspector-plugin-recast.js"></script>
+    <script src="lib/p5.js"></script>
+    <script src="js/sketch.js"></script>
+    <!-- <style> .a-canvas { display: none; } </style> -->
+  </head>
+  <body>
+    <!-- <canvas id="custom-canvas" width='2048' height='512' crossorigin="anonymous"></canvas> -->
+    <a-scene shadow antialiasing inspector-plugin-recast>
+      <!-- load assets -->
+      <a-assets timeout="20000">
+        <img id="forest" src="assets/forest_small_trim.jpg" preload="auto">
+        <img id="earth" src="assets/earth.jpg" preload="auto">
+        <canvas id="forest-canvas" width='2048' height='512' crossorigin="anonymous"></canvas>
+        <canvas id="ripple-canvas" width='512' height='512' crossorigin="anonymous"></canvas>
+        <a-asset-item
+          id="cloud-obj"
+          src="assets/blender/cloud.obj"
+        ></a-asset-item>
+        <a-asset-item
+          id="cloud-mtl"
+          src="assets/blender/cloud.mtl"
+        ></a-asset-item>
+        <a-asset-item
+          id="fan"
+          src="assets/blender/vent_fan.obj"
+        ></a-asset-item>
+        <a-asset-item
+          id="fan"
+          src="assets/blender/vent_fan.mtl"
+        ></a-asset-item>          
+
+      </a-assets>
+<!-- Nav Mesh -->
+<a-entity gltf-model="assets/navmesh.gltf"
+          nav-mesh visible="false"></a-entity>      
+
+<!-- CLOUD ROOM -->
+      <a-entity id="cloud-room" position="0 0 8">
+      <a-entity
+        id="cloud"
+        obj-model="obj: #cloud-obj; mtl: #cloud-mtl;"
+        scale="0.012 0.011 0.011"
+        position="0 1.0 0"
+        rotation="0 90 0"
+        shadow="cast: true;"
+        raycaster-listen
+      ></a-entity>
+      <a-entity id="ripple-surface"
+                material="src: #ripple-canvas; side: double"
+                geometry="primitive: plane; width: 2.5; height: 2;"       
+                position="0 1 0" rotation="90 0 0"
+                canvas-updater
+                >
+      </a-entity>      
+      <a-box position="0 0.495 0" depth="2" width="2.5"></a-box>   
+    </a-entity>
+
+  
+      
+      <!-- FOREST ROOM -->
+      <a-entity id="forest-wall"
+                material="src: #forest-canvas; side: double; metalness:0.0"
+                geometry="primitive: cylinder; height: 2.048; open-ended: true; radius: 2.5;
+                thetaStart: 0; thetaLength: 270"
+                position="0 1 -5.4" rotation="0 45 0"
+                scale="1 1 1"
+                raycaster-listen
+                >
+      </a-entity>   
+
+      <!-- WATER ROOM -->
+      <a-entity id="water-wall"
+                material="side: double;"
+                geometry="primitive: cylinder; height: 2.5; open-ended: true; radius: 5;
+                thetaStart: 0; thetaLength: 310"
+                position="0 1 8" rotation="0 -155 0"
+                >
+      </a-entity>     
+      
+      <!-- EARTH ROOM -->
+      <a-entity id="earth-wall"
+                material="side: double;"
+                geometry="primitive: cylinder; height: 2.5; open-ended: true; radius: 5;
+                thetaStart: 0; thetaLength: 310"
+                position="-8 1 0" rotation="0 115 0"
+                >
+      </a-entity>         
+
+      <!-- WIND ROOM -->
+      <a-entity id="wind-wall"
+                material="side: double;"
+                geometry="primitive: cylinder; height: 2.5; open-ended: true; radius: 5;
+                thetaStart: 0; thetaLength: 310"
+                position="8 1 0" rotation="0 -65 0"
+                >
+      </a-entity>    
+      
+      <!-- EARTH ROOM -->
+      <a-sphere globe
+                raycaster-listen
+                src="#earth"
+                position="-8 1.4 0"
+      ></a-sphere>
+
+<!-- ENVIRONMENT SETUP -->
+      <a-entity
+      environment="preset: starry; skyColor: #55a6ff; horizonColor: #f0cacd; shadow: true; lightPosition: 0 13 0; fog: 0.67; groundColor: #5639ac; dressingAmount: 0; grid: none; shadowSize: 2"
+      ></a-entity>
+      <a-text value="Press spacebar\n while hovering\nover the forest" font="kelsonsans" align="right" anchor="center" position="-2.3 1.0 -3.2" rotation="0 28 0" scale="0.5 0.5 0.5"></a-text>
+      <a-text value="Press spacebar\n while hovering\nover the cloud" font="kelsonsans" align="right" anchor="center" position="2.3 1.0 3.2" rotation="0 208 0" scale="0.5 0.5 0.5"></a-text>
+      <a-text value="Press spacebar\n while hovering\nover the fans" font="kelsonsans" align="right" anchor="center" position="3.2 1.0 -2.3" rotation="0 298 0" scale="0.5 0.5 0.5"></a-text>
+      <a-text value="Press spacebar\n while hovering\nover the globe" font="kelsonsans" align="right" anchor="center" position="-3.2 1.0 2.3" rotation="0 118 0" scale="0.5 0.5 0.5"></a-text>
+
+      <a-entity id="main-wall"
+              material="side: double"
+              geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+              thetaStart: 15; thetaLength: 60"
+              position="0 1 0" rotation="0 0 0"
+              >
+      </a-entity>
+
+      <a-entity id="main-wall"
+              material="side: double"
+              geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+              thetaStart: 105; thetaLength: 60"
+              position="0 1 0" rotation="0 0 0"
+              >
+      </a-entity>      
+
+      <a-entity id="main-wall"
+              material="color: #BBB; side: double"
+              geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+              thetaStart: 195; thetaLength: 60"
+              position="0 1 0" rotation="0 0 0"
+              >
+      </a-entity>        
+
+      <a-entity id="main-wall"
+              material="side: double"
+              geometry="primitive: cylinder; height: 3; open-ended: true; radius: 4;
+              thetaStart: 285; thetaLength: 60"
+              position="0 1 0" rotation="0 0 0"
+              >
+      </a-entity>   
+      
+      <a-entity id="floor"
+                material="side: double; color: #555"
+                geometry="primitive: plane; height: 40; width: 40;"
+                position="0 0.05 0" rotation="90 0 0"
+                >
+      </a-entity>    
+
+      <!-- lights -->
+      <a-entity light="type:spot; angle: 45; color: #84b9ca; penumbra: 0.31" position="2.7 0.05 2.7" rotation="90 0 0"></a-entity>
+      <a-entity light="type:spot; angle: 45; color: #84b9ca; penumbra: 0.31" position="-2.7 0.05 2.7" rotation="90 0 0"></a-entity>
+      <a-entity light="type:spot; angle: 45; color: #84b9ca; penumbra: 0.31" position="-2.7 0.05 -2.7" rotation="90 0 0"></a-entity>
+      <a-entity light="type:spot; angle: 45; color: #84b9ca; penumbra: 0.31" position="2.7 0.05 -2.7" rotation="90 0 0"></a-entity>
+      <a-entity light="type: ambient; intensity: 0.5"></a-entity>
+    <!-- STAGE -->
+
+      <!-- camera and reticle -->
+        <!-- <a-entity id="rig" movement-controls="constrainToNavMesh: true;">      
+          <a-entity
+            camera
+            look-controls="pointerLockEnabled: true;"
+            position="0 1.5 0"
+            wasd-controls="acceleration:65"
+            collider-check
+            position-reader
+          >
+            <a-entity
+              cursor="fuse: true; fuseTimeout: 500"
+              raycaster="showLine: false; far: 20; interval: 1000; objects: .clickable"
+              position="0 0 -0.5"
+              geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"
+              material="color: black; shader: flat"
+            >
+            </a-entity>
+          </a-entity>
+      </a-entity> -->
+
+      <a-entity id="rig" movement-controls="constrainToNavMesh: true">
+        <a-entity camera
+                  position="0 1.4 0"
+                  collider-check
+                  position-reader
+                  look-controls>
+          <a-cursor cursor raycaster="objects: [nav-mesh];"
+          position="0 0 -0.5"
+          geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"
+          material="color: black; shader: flat"
+          ></a-cursor>
+        </a-entity>
+      </a-entity>
+
+      </a-entity>
+    </a-scene>
+  </body>
+</html>

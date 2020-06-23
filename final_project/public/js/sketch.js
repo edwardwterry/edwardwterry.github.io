@@ -15,7 +15,7 @@ let scale_notes = ["F3", "Bb3", "C4", "D4", "Eb4", "Ab4"];
 let firefly_speeds = ["slow", "med", "fast"];
 let ball_scale_fract;
 let drum_sequences = [];
-let wind_volume_range = [-30, 5];
+let wind_volume_range = [-30, 10];
 let freeverb;
 let pitch_shift;
 
@@ -230,7 +230,7 @@ $(document).ready(function () {
     },
     {
       attack : 2000,
-      volume: -20,
+      volume: -10,
     }
   );
   samplers['water'] = new Tone.Sampler(
@@ -648,8 +648,6 @@ AFRAME.registerComponent("globe", {
   tick: function (t, dt) {
     let rot = this.el.getAttribute("rotation");
     pitch_shift.pitch = Math.abs(rot.x *0.04);
-    // console.log(Math.sin(t));
-    // samplers['earth'].grainSize = 0.01 ;//(Math.random() + 0.5) * 0.2 * 0.37; //val > 0 ? val : -val;
     let k = 0.000003;
     let c = 0.99;
     if (rot.x < -40){
@@ -676,7 +674,6 @@ AFRAME.registerComponent("globe", {
       y: rot.y + this.data.omega.y * dt,
       z: 0,
     });
-    console.log(angle); 
   },
   wind_up: function () {
     let rot = this.el.getAttribute("rotation");

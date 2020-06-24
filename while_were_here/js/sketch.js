@@ -135,14 +135,14 @@ $(document).ready(function () {
   // FOREST ROOM
   //////////////////////////////////////////  
 
-  // setInterval(() => {
+  setInterval(() => {
     var HTMLcanvas = document.getElementById("forest-canvas");
     var HTMLcontext = HTMLcanvas.getContext("2d");   
     let img = document.getElementById("forest");
     // var img = new Image;
     // img.src = 'assets/forest_small_trim-min.jpg';  
     HTMLcontext.drawImage(img, 0, 0);
-  // }, 50);  
+  }, 500);  
 
 
 

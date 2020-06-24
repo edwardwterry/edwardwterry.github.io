@@ -134,15 +134,16 @@ $(document).ready(function () {
   ////////////////////////////////////////// 
   // FOREST ROOM
   //////////////////////////////////////////  
-  var HTMLcanvas = document.getElementById("forest-canvas");
-  var HTMLcontext = HTMLcanvas.getContext("2d");
-  setInterval(() => {
-    let img = document.getElementById("forest");
-    HTMLcontext.drawImage(img, 0, 0);
-  }, 500);  
 
-  // var img = new Image;
-  // img.src = 'assets/forest_small_trim-min.jpg';  
+  // setInterval(() => {
+    var HTMLcanvas = document.getElementById("forest-canvas");
+    var HTMLcontext = HTMLcanvas.getContext("2d");   
+    let img = document.getElementById("forest");
+    // var img = new Image;
+    // img.src = 'assets/forest_small_trim-min.jpg';  
+    HTMLcontext.drawImage(img, 0, 0);
+  // }, 50);  
+
 
 
   setInterval(() => {
@@ -200,6 +201,7 @@ $(document).ready(function () {
   //////////////////////////////////////////  
   Tone.Transport.bpm.value = bpm;
   Tone.Transport.start('+2.0');
+  // Tone.Transport.start();
 
   let bps = bpm / 60.0;
   let spb = 1 / bps;
@@ -346,9 +348,10 @@ $(document).ready(function () {
   // }, 2000);  
 
   samplers['earth'] = new Tone.Player({
-    "url" : "assets/amb_comp.mp3",
+    "url" : "assets/amb3.mp3",
     "autostart" : true,
-    'loop': true
+    'loop': true,
+    'volume': -10
   });
   pitch_shift = new Tone.PitchShift();
   samplers['earth'].connect(pitch_shift);
@@ -361,7 +364,7 @@ $(document).ready(function () {
   // samplers['water'].toMaster();
   // samplers['wind'].toMaster();
   for (let i = 0; i < num_cylinders; i++){
-    drum_sequences[i].start(0);
+    drum_sequences[i].start(2);
   }
 
   // setInterval(() => {
@@ -636,7 +639,7 @@ AFRAME.registerComponent("fan", {
     // console.log(this.data.throttle);
   },
   increase: function () {
-    this.data.throttle = Math.min(this.data.throttle + 0.05, 1.0);
+    this.data.throttle = Math.min(this.data.throttle + 0.1, 1.0);
     this.data.omega.y = this.data.throttle * (fan_speed_range[1] - fan_speed_range[0]) + fan_speed_range[0];
   },
 });
@@ -651,7 +654,7 @@ AFRAME.registerComponent("globe", {
   },
   tick: function (t, dt) {
     let rot = this.el.getAttribute("rotation");
-    pitch_shift.pitch = Math.abs(rot.x *0.04);
+    pitch_shift.pitch = Math.abs(rot.x *0.025);
     let k = 0.000003;
     let c = 0.99;
     if (rot.x < -40){

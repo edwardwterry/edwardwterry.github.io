@@ -653,6 +653,10 @@ AFRAME.registerComponent("globe", {
     this.el.setAttribute("rotation", { x: 0, y: 0, z: 0 });
   },
   tick: function (t, dt) {
+    if (document.visibilityState == 'hidden'){
+      dt = 0;
+    }
+    dt = dt > 100 ? 100 : dt;
     let rot = this.el.getAttribute("rotation");
     pitch_shift.pitch = Math.abs(rot.x *0.025);
     let k = 0.000003;

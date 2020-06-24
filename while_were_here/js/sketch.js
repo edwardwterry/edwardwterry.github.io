@@ -634,7 +634,7 @@ AFRAME.registerComponent("fan", {
     let rot = this.el.getAttribute("rotation");
     this.el.setAttribute("rotation", { x: 0, y: rot.y + omega.y * dt, z: 0 });
     // this.data.throttle = 0.01;
-    this.data.throttle = Math.max(this.data.throttle - 0.00001 * dt, 0.0);
+    this.data.throttle = Math.max(this.data.throttle - 0.00005 * dt, 0.0);
     samplers['wind'][this.el.id].volume.value = this.data.throttle * (wind_volume_range[1] - wind_volume_range[0]) + wind_volume_range[0];
     // console.log(this.data.throttle);
   },
